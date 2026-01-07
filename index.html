@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Japan Task File Generator</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link
+      rel="icon"
+      href="https://eventsprguide.infinityfree.me/img/dashboard.png"
+      type="image/svg+xml"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  </head>
+  <body>
+    <nav class="topbar">
+      <div class="page-title">Japan File Generator</div>
+      <div class="actions">
+        <button class="btn btn-primary" id="saveBtn">Save</button>
+      </div>
+    </nav>
+    <div class="container">
+      <aside class="sidebar">
+        <div id="collapseBtn" class="collapse-btn">
+          <i class="fas fa-chevron-left"></i>
+        </div>
+        <div class="sidebar-inner">
+          <!-- General Information -->
+          <section class="sidebar-block">
+            <div class="sb-heading">
+              <h3>Components</h3>
+              <div
+                id="refreshSidebar"
+                title="Reset all inputs"
+                style="cursor: pointer; float: right"
+              >
+                <i class="fas fa-sync-alt"></i>
+              </div>
+            </div>
+            <div class="sb-row">
+              <input
+                type="text"
+                class="component search"
+                placeholder="Search"
+              />
+            </div>
+            <div class="sb-row">
+              <label for="">Header</label>
+              <div class="component">
+                <img src="img/Header.png" alt="" />
+              </div>
+            </div>
+
+            <div class="sb-row">
+              <label for="">Banner</label>
+              <div class="component add-component" data-template="tpl-banner">
+                <img src="img/Banner.png" alt="" />
+              </div>
+            </div>
+
+            <div class="sb-row">
+              <label for="">Headline</label>
+              <div class="component add-component" data-template="tpl-headline">
+                <img src="img/Headline.png" alt="" />
+              </div>
+            </div>
+
+            <div class="sb-row">
+              <label for="">Content</label>
+              <div class="component add-component" data-template="tpl-content">
+                <img src="img/Content.png" alt="" />
+              </div>
+            </div>
+
+            <div class="sb-row">
+              <label for="">Speaker</label>
+              <div class="component add-component" data-template="tpl-speaker">
+                <img src="img/Speaker.png" alt="" />
+              </div>
+            </div>
+
+            <div class="sb-row">
+              <label for="">Call to Action Button</label>
+              <div class="component add-component" data-template="tpl-cta">
+                <img src="img/CTA.png" alt="" />
+              </div>
+            </div>
+
+            <div class="sb-row">
+              <label for="">Divider</label>
+              <div class="component">
+                <img src="" alt="" />
+              </div>
+            </div>
+          </section>
+        </div>
+      </aside>
+      <div class="page-area">
+        <div class="oft-content">
+          <table
+            id="emailTable"
+            width="100%"
+            border="0"
+            cellspacing="0"
+            cellpadding="0"
+            align="center"
+          >
+            <tr>
+              <td valign="top" align="center">
+                <table
+                  width="93%"
+                  border="0"
+                  cellspacing="0"
+                  cellpadding="0"
+                  role="presentation"
+                  bgcolor="#FFFFFF"
+                >
+                  <tbody>
+                    <tr>
+                      <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                      <td valign="top" align="left">
+                        <img
+                          src="https://cdn-dynmedia-1.microsoft.com/is/image/microsoftcorp/ST1231968_LOGO"
+                          width="90"
+                          alt="Microsoft Logo."
+                          style="border: none; border-width: 0"
+                          border="0"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>&nbsp;</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div
+                  class="Banner-div selectable"
+                  data-component="banner"
+                  style="padding: 0px; margin: 0px; background-color: #ffffff"
+                >
+                  <img src="img/Banner.png" alt="" width="100%" />
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div
+                  class="Headline-div selectable"
+                  data-component="headline"
+                  style="padding: 20px"
+                >
+                  <h1
+                    style="
+                      margin: 0px;
+                      background-color: #ffffff;
+                      text-align: center;
+                      color: #4472c4;
+                    "
+                  >
+                    Headline Text
+                  </h1>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div
+                  class="Content-div selectable"
+                  data-component="content"
+                  style="padding: 20px; margin: 0px; background-color: #ffffff"
+                >
+                  <p>Content text</p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div class="CTA-div selectable" data-component="cta">
+                  <a href="#">Register now ></a>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div class="Speaker-div selectable" data-component="speaker">
+                  <div
+                    class="speaker-info"
+                    style="
+                      display: flex;
+                      padding: 20px;
+                      gap: 20px;
+                      align-items: center;
+                    "
+                  >
+                    <img src="img/SpeakerHeadshot.png" alt="" width="80px" />
+                    <div class="speaker-details">
+                      <p><strong>Speaker Name</strong></p>
+                      <p>Speaker Title</p>
+                      <p>Other Information</p>
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <tr id="footerRow">
+              <!------Footer Table----->
+              <td valign="top" align="center" bgcolor="#f2f2f2">
+                <table
+                  cellpadding="0"
+                  cellspacing="0"
+                  align="center"
+                  border="0"
+                  bgcolor="#194449"
+                  style="background-color: #f2f2f2"
+                  role="presentation"
+                  width="93%"
+                >
+                  <tbody>
+                    <tr>
+                      <td
+                        valign="top"
+                        height="15"
+                        style="font-size: 1px; line-height: 1px"
+                      >
+                        &nbsp;
+                      </td>
+                    </tr>
+                    <tr>
+                      <td
+                        class="mFont"
+                        align="left"
+                        style="
+                          font-family: 'Segoe UI', Verdana, Geneva, Sans-serif;
+                          font-size: 10.5pt;
+                          color: #000000;
+                        "
+                      >
+                        If you prefer not to receive these types of
+                        communications from me, just let me know. To learn how
+                        to manage your contact preferences for other parts of
+                        Microsoft, please read our
+                        <a
+                          href="https://go.microsoft.com/fwlink/?LinkId=521839"
+                          style="color: #0078d4; text-decoration: underline"
+                          target="_blank"
+                          >Privacy Statement</a
+                        >.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td
+                        valign="top"
+                        height="15"
+                        style="font-size: 1px; line-height: 1px"
+                      >
+                        &nbsp;
+                      </td>
+                    </tr>
+                    <tr>
+                      <td
+                        class="mFont"
+                        align="left"
+                        style="
+                          font-family: 'Segoe UI', Verdana, Geneva, Sans-serif;
+                          font-size: 10.5pt;
+                          color: #000000;
+                        "
+                      >
+                        [Microsoft Entity Name]<br />
+                        [Address]<br />
+                        [ ] <br />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td
+                        valign="top"
+                        height="15"
+                        style="font-size: 1px; line-height: 1px"
+                      >
+                        &nbsp;
+                      </td>
+                    </tr>
+                    <tr>
+                      <td valign="top" align="left">
+                        <img
+                          alt="Microsoft Footer Logo."
+                          border="0"
+                          src="https://cdn-dynmedia-1.microsoft.com/is/image/microsoftcorp/ST1231968_LOGO"
+                          style="
+                            border-width: 0;
+                            display: block;
+                            margin-right: 0;
+                          "
+                          width="97"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td
+                        valign="top"
+                        height="25"
+                        style="font-size: 1px; line-height: 1px"
+                      >
+                        &nbsp;
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td bgcolor="#f2f2f2">&nbsp;</td>
+            </tr>
+          </table>
+        </div>
+        <p class="note">Click a component to add</p>
+      </div>
+      <div class="editor">
+        <h3 class="editor-title">Configure Component</h3>
+
+        <!-- Component name -->
+        <div class="sb-row">
+          <label>Component</label>
+          <div class="component editor-readonly">Header</div>
+        </div>
+
+        <!-- Textarea -->
+        <div class="sb-row">
+          <label>Description</label>
+          <div
+            class="component editor-textarea"
+            contenteditable="true"
+            style="min-height: 80px; border: 1px solid #ccc; padding: 5px"
+          ></div>
+        </div>
+        <!-- Text Styles -->
+        <div class="sb-row">
+          <label>Text Styles</label>
+          <div class="txt-style-divs">
+            <!-- Font Size -->
+            <label class="ck-toolbar__item" title="Font Size">
+              <span class="material-icons">format_size</span>
+              <input
+                type="number"
+                id="fontSize"
+                min="10.5"
+                max="36"
+                value="12"
+                step="0.5"
+              /> </label
+            >&nbsp;
+            <!-- Font Color -->
+            <label class="ck-toolbar__item" title="Font Color">
+              <span class="material-icons">format_color_text</span>
+              <input type="color" id="textColor" value="#000000" />
+            </label>
+          </div>
+        </div>
+
+        <!-- Alignment -->
+        <div class="sb-row">
+          <label>Alignment</label>
+          <select class="component">
+            <option>Left</option>
+            <option>Center</option>
+            <option>Right</option>
+          </select>
+        </div>
+        <hr style="margin-bottom: 20px" />
+
+        <div class="sb-row">
+          <p>Banner Format</p>
+          <div class="edit-container">
+            <!-- From Uiverse.io by Yaya12085 -->
+            <label>Banner Information</label>
+            <label class="custum-file-upload" for="file">
+              <div class="icon">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill=""
+                  viewBox="0 0 24 24"
+                >
+                  <g stroke-width="0" id="SVGRepo_bgCarrier"></g>
+                  <g
+                    stroke-linejoin="round"
+                    stroke-linecap="round"
+                    id="SVGRepo_tracerCarrier"
+                  ></g>
+                  <g id="SVGRepo_iconCarrier">
+                    <path
+                      fill=""
+                      d="M10 1C9.73478 1 9.48043 1.10536 9.29289 1.29289L3.29289 7.29289C3.10536 7.48043 3 7.73478 3 8V20C3 21.6569 4.34315 23 6 23H7C7.55228 23 8 22.5523 8 22C8 21.4477 7.55228 21 7 21H6C5.44772 21 5 20.5523 5 20V9H10C10.5523 9 11 8.55228 11 8V3H18C18.5523 3 19 3.44772 19 4V9C19 9.55228 19.4477 10 20 10C20.5523 10 21 9.55228 21 9V4C21 2.34315 19.6569 1 18 1H10ZM9 7H6.41421L9 4.41421V7ZM14 15.5C14 14.1193 15.1193 13 16.5 13C17.8807 13 19 14.1193 19 15.5V16V17H20C21.1046 17 22 17.8954 22 19C22 20.1046 21.1046 21 20 21H13C11.8954 21 11 20.1046 11 19C11 17.8954 11.8954 17 13 17H14V16V15.5ZM16.5 11C14.142 11 12.2076 12.8136 12.0156 15.122C10.2825 15.5606 9 17.1305 9 19C9 21.2091 10.7909 23 13 23H20C22.2091 23 24 21.2091 24 19C24 17.1305 22.7175 15.5606 20.9844 15.122C20.7924 12.8136 18.858 11 16.5 11Z"
+                      clip-rule="evenodd"
+                      fill-rule="evenodd"
+                    ></path>
+                  </g>
+                </svg>
+              </div>
+              <div class="text">
+                <span>Click to upload image</span>
+              </div>
+              <input type="file" id="bannerImage" />
+            </label>
+          </div>
+        </div>
+
+        <hr style="margin-bottom: 20px" />
+        <p style="margin-bottom: 10px">Spacing Format</p>
+        <div class="edit-container">
+          <!-- Spacing -->
+          <div class="sb-row">
+            <label for="">Padding</label>
+            <div class="paddingmargin-container">
+              <label class="ck-toolbar__item" title="Padding-Top">
+                <span class="material-icons padding-top rotate-top"
+                  >padding</span
+                >
+                <input
+                  type="number"
+                  id="paddingTop"
+                  min="0"
+                  max="100"
+                  value="20"
+                />
+              </label>
+
+              <label class="ck-toolbar__item" title="Padding-Right">
+                <span class="material-icons padding-right rotate-right"
+                  >padding</span
+                >
+                <input
+                  type="number"
+                  id="paddingRight"
+                  min="0"
+                  max="100"
+                  value="20"
+                />
+              </label>
+
+              <label class="ck-toolbar__item" title="Padding-Bottom">
+                <span class="material-icons padding-bottom rotate-bottom"
+                  >padding</span
+                >
+                <input
+                  type="number"
+                  id="paddingBottom"
+                  min="0"
+                  max="100"
+                  value="20"
+                />
+              </label>
+
+              <label class="ck-toolbar__item" title="Padding-Left">
+                <span class="material-icons padding-left rotate-left"
+                  >padding</span
+                >
+                <input
+                  type="number"
+                  id="paddingLeft"
+                  min="0"
+                  max="100"
+                  value="20"
+                />
+              </label>
+            </div>
+          </div>
+
+          <div class="sb-row">
+            <label for="">Margin</label>
+            <div class="paddingmargin-container">
+              <label class="ck-toolbar__item" title="Margin-Top">
+                <span class="material-icons margin-top rotate-top">margin</span>
+                <input
+                  type="number"
+                  id="marginTop"
+                  min="0"
+                  max="100"
+                  value="20"
+                />
+              </label>
+
+              <label class="ck-toolbar__item" title="Margin-Right">
+                <span class="material-icons margin-right rotate-right"
+                  >margin</span
+                >
+                <input
+                  type="number"
+                  id="marginRight"
+                  min="0"
+                  max="100"
+                  value="20"
+                />
+              </label>
+
+              <label class="ck-toolbar__item" title="Margin-Bottom">
+                <span class="material-icons margin-bottom rotate-bottom"
+                  >margin</span
+                >
+                <input
+                  type="number"
+                  id="marginBottom"
+                  min="0"
+                  max="100"
+                  value="20"
+                />
+              </label>
+
+              <label class="ck-toolbar__item" title="Margin-Left">
+                <span class="material-icons margin-left rotate-left"
+                  >margin</span
+                >
+                <input
+                  type="number"
+                  id="marginLeft"
+                  min="0"
+                  max="100"
+                  value="20"
+                />
+              </label>
+            </div>
+          </div>
+        </div>
+        <hr style="margin-bottom: 20px" />
+
+        <div class="sb-row">
+          <p>Speaker Format</p>
+          <div class="edit-container">
+            <label>Speaker Image</label>
+            <label class="custum-file-upload" for="file">
+              <div class="icon">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill=""
+                  viewBox="0 0 24 24"
+                >
+                  <g stroke-width="0" id="SVGRepo_bgCarrier"></g>
+                  <g
+                    stroke-linejoin="round"
+                    stroke-linecap="round"
+                    id="SVGRepo_tracerCarrier"
+                  ></g>
+                  <g id="SVGRepo_iconCarrier">
+                    <path
+                      fill=""
+                      d="M10 1C9.73478 1 9.48043 1.10536 9.29289 1.29289L3.29289 7.29289C3.10536 7.48043 3 7.73478 3 8V20C3 21.6569 4.34315 23 6 23H7C7.55228 23 8 22.5523 8 22C8 21.4477 7.55228 21 7 21H6C5.44772 21 5 20.5523 5 20V9H10C10.5523 9 11 8.55228 11 8V3H18C18.5523 3 19 3.44772 19 4V9C19 9.55228 19.4477 10 20 10C20.5523 10 21 9.55228 21 9V4C21 2.34315 19.6569 1 18 1H10ZM9 7H6.41421L9 4.41421V7ZM14 15.5C14 14.1193 15.1193 13 16.5 13C17.8807 13 19 14.1193 19 15.5V16V17H20C21.1046 17 22 17.8954 22 19C22 20.1046 21.1046 21 20 21H13C11.8954 21 11 20.1046 11 19C11 17.8954 11.8954 17 13 17H14V16V15.5ZM16.5 11C14.142 11 12.2076 12.8136 12.0156 15.122C10.2825 15.5606 9 17.1305 9 19C9 21.2091 10.7909 23 13 23H20C22.2091 23 24 21.2091 24 19C24 17.1305 22.7175 15.5606 20.9844 15.122C20.7924 12.8136 18.858 11 16.5 11Z"
+                      clip-rule="evenodd"
+                      fill-rule="evenodd"
+                    ></path>
+                  </g>
+                </svg>
+              </div>
+              <div class="text">
+                <span>Click to upload image</span>
+              </div>
+              <input type="file" id="speakerImage" />
+            </label>
+            <div class="speaker-div">
+              <label for="">Speaker Name</label>
+              <input type="text" />
+              <label for="">Speaker Title</label>
+              <input type="text" />
+              <label for="">Other Information</label>
+              <input type="text" />
+            </div>
+          </div>
+        </div>
+        <hr style="margin-bottom: 20px" />
+
+        <!-- Actions -->
+        <div class="editor-actions">
+          <button id="resetBtn" class="btn editor-btn-secondary" disabled>
+            Reset
+          </button>
+          <button id="applyBtn" class="btn editor-btn-primary" disabled>
+            Apply
+          </button>
+          <button id="moveUpBtn" class="btn" disabled>Move Up</button>
+          <button id="moveDownBtn" class="btn" disabled>Move Down</button>
+        </div>
+
+        <button
+          id="deleteComponentBtn"
+          class="btn"
+          style="margin-top: 10px; background: #ff3b30; color: #fff"
+          disabled
+        >
+          Delete Component
+        </button>
+      </div>
+    </div>
+    <template id="tpl-banner">
+      <tr>
+        <td>
+          <div
+            class="Banner-div selectable"
+            data-component="banner"
+            style="padding: 0px; margin: 0px; background-color: #ffffff"
+          >
+            <img src="img/Banner.png" alt="" width="100%" />
+          </div>
+        </td>
+      </tr>
+    </template>
+
+    <template id="tpl-headline">
+      <tr>
+        <td>
+          <div
+            class="Headline-div selectable"
+            data-component="headline"
+            style="padding: 20px"
+          >
+            <h1
+              style="
+                margin: 0px;
+                background-color: #ffffff;
+                text-align: center;
+                color: #4472c4;
+              "
+            >
+              Headline Text
+            </h1>
+          </div>
+        </td>
+      </tr>
+    </template>
+
+    <template id="tpl-content">
+      <tr>
+        <td>
+          <div
+            class="Content-div selectable"
+            data-component="content"
+            style="padding: 20px; margin: 0px; background-color: #ffffff"
+          >
+            <p>Content text</p>
+          </div>
+        </td>
+      </tr>
+    </template>
+
+    <template id="tpl-cta">
+      <tr>
+        <td>
+          <div class="CTA-div selectable" data-component="cta">
+            <a href="#">Register now ></a>
+          </div>
+        </td>
+      </tr>
+    </template>
+
+    <template id="tpl-speaker">
+      <tr>
+        <td>
+          <div class="Speaker-div selectable" data-component="speaker">
+            <div
+              class="speaker-info"
+              style="
+                display: flex;
+                padding: 20px;
+                gap: 20px;
+                align-items: center;
+              "
+            >
+              <img src="img/SpeakerHeadshot.png" alt="" width="80px" />
+              <div class="speaker-details">
+                <p><strong>Speaker Name</strong></p>
+                <p>Speaker Title</p>
+                <p>Other Information</p>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+    </template>
+
+    <script src="script.js"></script>
+  </body>
+</html>
