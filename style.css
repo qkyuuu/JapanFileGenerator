@@ -364,14 +364,145 @@ body {
   padding: 0 20px;
 }
 .speaker-div {
+  width: 100%;
   margin-top: 10px;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  row-gap: 10px;
+  display: flex;
+  flex-direction: column;
   align-items: center;
 }
-.speaker-div input[type="text"] {
+.speaker-image {
+  display: flex;
+  justify-content: center; /* horizontal centering */
+  align-items: center; /* vertical alignment if needed */
+  width: 100%;
+  margin-bottom: 10px;
+}
+.speaker-image img {
+  width: 85px;
+}
+.speaker-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.speaker-text input[type="text"] {
   padding: 5px 10px;
   border-radius: 5px;
   border: 1px solid #cccccc;
+}
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+/* Modal Box */
+.modal {
+  background: #fff;
+  width: 70%;
+  max-width: 800px;
+  height: 70%;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  overflow: hidden; /* important */
+}
+
+/* Header */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e5e5e7;
+}
+
+.modal-header button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* Toolbar */
+.modal-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 16px;
+  border-bottom: 1px solid #e5e5e7;
+  background: #f9f9f9;
+}
+
+.modal-toolbar button {
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 6px;
+  cursor: pointer;
+}
+
+.modal-toolbar button:hover {
+  background: #e5e5ea;
+}
+
+.modal-toolbar .material-icons {
+  font-size: 18px;
+}
+
+/* Toolbar input groups */
+.toolbar-field {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.toolbar-field input[type="number"] {
+  width: 70px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.toolbar-field input[type="color"] {
+  padding: 0;
+  width: 34px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+/* Toolbar divider */
+.toolbar-separator {
+  width: 1px;
+  height: 22px;
+  background: #ccc;
+  margin: 0 4px;
+}
+
+/* Editor */
+.modal-editor {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  border: none;
+  outline: none;
+  font-size: 14px;
+}
+
+/* Footer */
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 20px;
+  border-top: 1px solid #e5e5e7;
 }
