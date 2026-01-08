@@ -341,13 +341,27 @@
 
         <!-- Textarea -->
         <div class="sb-row">
-          <label>Description</label>
           <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            "
+          >
+            <label>Description</label>
+            <button id="openDescModal" class="btn" style="padding: 4px 8px">
+              <span class="material-icons">open_in_full</span>
+            </button>
+          </div>
+
+          <div
+            id="descriptionEditor"
             class="component editor-textarea"
             contenteditable="true"
             style="min-height: 80px; border: 1px solid #ccc; padding: 5px"
           ></div>
         </div>
+
         <!-- Text Styles -->
         <div class="sb-row">
           <label>Text Styles</label>
@@ -541,7 +555,7 @@
           <p>Speaker Format</p>
           <div class="edit-container">
             <label>Speaker Image</label>
-            <label class="custum-file-upload" for="file">
+            <label class="custum-file-upload" for="speakerImage">
               <div class="icon">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -570,12 +584,14 @@
               <input type="file" id="speakerImage" />
             </label>
             <div class="speaker-div">
-              <label for="">Speaker Name</label>
-              <input type="text" />
-              <label for="">Speaker Title</label>
-              <input type="text" />
-              <label for="">Other Information</label>
-              <input type="text" />
+              <div class="speaker-image">
+                <img src="img/HeadshotPlaceholder.png" alt="" />
+              </div>
+              <div class="speaker-text">
+                <input type="text" />
+                <input type="text" />
+                <input type="text" />
+              </div>
             </div>
           </div>
         </div>
@@ -603,6 +619,83 @@
         </button>
       </div>
     </div>
+
+    <!-- Description Modal -->
+    <div id="descModal" class="modal-overlay">
+      <div class="modal">
+        <div class="modal-header">
+          <h3>Edit Description</h3>
+          <button id="closeDescModal">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="modal-toolbar">
+          <button data-cmd="bold" title="Bold">
+            <span class="material-icons">format_bold</span>
+          </button>
+
+          <button data-cmd="italic" title="Italic">
+            <span class="material-icons">format_italic</span>
+          </button>
+
+          <button data-cmd="underline" title="Underline">
+            <span class="material-icons">format_underlined</span>
+          </button>
+
+          <div class="toolbar-separator"></div>
+
+          <label class="toolbar-field">
+            <span class="material-icons">format_size</span>
+            <input
+              id="fontSizeInput"
+              type="number"
+              min="8"
+              max="72"
+              step="1"
+              value="12"
+            />
+          </label>
+
+          <label class="toolbar-field">
+            <span class="material-icons">format_color_text</span>
+            <input type="color" id="fontColorPicker" />
+          </label>
+
+          <div class="toolbar-separator"></div>
+
+          <button data-cmd="justifyLeft" title="Align Left">
+            <span class="material-icons">format_align_left</span>
+          </button>
+
+          <button data-cmd="justifyCenter" title="Align Center">
+            <span class="material-icons">format_align_center</span>
+          </button>
+
+          <button data-cmd="justifyRight" title="Align Right">
+            <span class="material-icons">format_align_right</span>
+          </button>
+        </div>
+
+        <!-- Editor -->
+        <div
+          id="modalDescEditor"
+          class="modal-editor"
+          contenteditable="true"
+        ></div>
+
+        <div class="modal-actions">
+          <button id="cancelDescModal" class="btn editor-btn-secondary">
+            Cancel
+          </button>
+          <button id="saveDescModal" class="btn editor-btn-primary">
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+
     <template id="tpl-banner">
       <tr>
         <td>
