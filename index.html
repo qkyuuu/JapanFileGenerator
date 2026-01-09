@@ -61,7 +61,14 @@
             </div>
 
             <div class="sb-row">
-              <label for="">Banner</label>
+              <label for="">Banner Text</label>
+              <div class="component">
+                <img src="img/Header.png" alt="" />
+              </div>
+            </div>
+
+            <div class="sb-row">
+              <label for="">Banner Image</label>
               <div class="component add-component" data-template="tpl-banner">
                 <img src="img/Banner.png" alt="" />
               </div>
@@ -149,11 +156,28 @@
             <tr>
               <td>
                 <div
+                  class="BanText-div selectable"
+                  data-component="banText"
+                  style="
+                    padding: 20px;
+                    color: #000000;
+                    background-color: #919191;
+                    font-size: 32px;
+                    font-weight: 700;
+                  "
+                >
+                  <p>Banner Text</p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div
                   class="Banner-div selectable"
                   data-component="banner"
                   style="padding: 0px; margin: 0px; background-color: #ffffff"
                 >
-                  <img src="img/Banner.png" alt="" width="100%" />
+                  <img src="img/BannerPlaceholder.png" alt="" width="100%" />
                 </div>
               </td>
             </tr>
@@ -162,18 +186,9 @@
                 <div
                   class="Headline-div selectable"
                   data-component="headline"
-                  style="padding: 20px"
+                  style="padding: 20px; text-align: center"
                 >
-                  <h1
-                    style="
-                      margin: 0px;
-                      background-color: #ffffff;
-                      text-align: center;
-                      color: #4472c4;
-                    "
-                  >
-                    Headline Text
-                  </h1>
+                  <h1 style="margin: 0px; color: #4472c4">Headline Text</h1>
                 </div>
               </td>
             </tr>
@@ -190,22 +205,25 @@
             </tr>
             <tr>
               <td>
-                <div class="CTA-div selectable" data-component="cta">
+                <div
+                  class="CTA-div selectable"
+                  data-component="cta"
+                  style="text-align: center"
+                >
                   <a href="#">Register now ></a>
                 </div>
               </td>
             </tr>
             <tr>
               <td>
-                <div class="Speaker-div selectable" data-component="speaker">
+                <div
+                  class="Speaker-div selectable"
+                  data-component="speaker"
+                  style="padding: 20px"
+                >
                   <div
                     class="speaker-info"
-                    style="
-                      display: flex;
-                      padding: 20px;
-                      gap: 20px;
-                      align-items: center;
-                    "
+                    style="display: flex; gap: 20px; align-items: center"
                   >
                     <img src="img/SpeakerHeadshot.png" alt="" width="80px" />
                     <div class="speaker-details">
@@ -332,118 +350,119 @@
       </div>
       <div class="editor">
         <h3 class="editor-title">Configure Component</h3>
+        <div class="editor-overlay"></div>
 
-        <!-- Component name -->
         <div class="sb-row">
           <label>Component</label>
           <div class="component editor-readonly">Header</div>
         </div>
 
-        <!-- Textarea -->
-        <div class="sb-row">
-          <div
-            style="
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-            "
-          >
-            <label>Description</label>
-            <button id="openDescModal" class="btn" style="padding: 4px 8px">
-              <span class="material-icons">open_in_full</span>
-            </button>
-          </div>
-
-          <div
-            id="descriptionEditor"
-            class="component editor-textarea"
-            contenteditable="true"
-            style="min-height: 80px; border: 1px solid #ccc; padding: 5px"
-          ></div>
-        </div>
-
-        <!-- Text Styles -->
-        <div class="sb-row">
-          <label>Text Styles</label>
-          <div class="txt-style-divs">
-            <!-- Font Size -->
-            <label class="ck-toolbar__item" title="Font Size">
-              <span class="material-icons">format_size</span>
-              <input
-                type="number"
-                id="fontSize"
-                min="10.5"
-                max="36"
-                value="12"
-                step="0.5"
-              /> </label
-            >&nbsp;
-            <!-- Font Color -->
-            <label class="ck-toolbar__item" title="Font Color">
-              <span class="material-icons">format_color_text</span>
-              <input type="color" id="textColor" value="#000000" />
-            </label>
-          </div>
-        </div>
-
-        <!-- Alignment -->
-        <div class="sb-row">
-          <label>Alignment</label>
-          <select class="component">
-            <option>Left</option>
-            <option>Center</option>
-            <option>Right</option>
-          </select>
-        </div>
-        <hr style="margin-bottom: 20px" />
-
-        <div class="sb-row">
-          <p>Banner Format</p>
-          <div class="edit-container">
-            <!-- From Uiverse.io by Yaya12085 -->
-            <label>Banner Information</label>
-            <label class="custum-file-upload" for="file">
-              <div class="icon">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill=""
-                  viewBox="0 0 24 24"
-                >
-                  <g stroke-width="0" id="SVGRepo_bgCarrier"></g>
-                  <g
-                    stroke-linejoin="round"
-                    stroke-linecap="round"
-                    id="SVGRepo_tracerCarrier"
-                  ></g>
-                  <g id="SVGRepo_iconCarrier">
-                    <path
-                      fill=""
-                      d="M10 1C9.73478 1 9.48043 1.10536 9.29289 1.29289L3.29289 7.29289C3.10536 7.48043 3 7.73478 3 8V20C3 21.6569 4.34315 23 6 23H7C7.55228 23 8 22.5523 8 22C8 21.4477 7.55228 21 7 21H6C5.44772 21 5 20.5523 5 20V9H10C10.5523 9 11 8.55228 11 8V3H18C18.5523 3 19 3.44772 19 4V9C19 9.55228 19.4477 10 20 10C20.5523 10 21 9.55228 21 9V4C21 2.34315 19.6569 1 18 1H10ZM9 7H6.41421L9 4.41421V7ZM14 15.5C14 14.1193 15.1193 13 16.5 13C17.8807 13 19 14.1193 19 15.5V16V17H20C21.1046 17 22 17.8954 22 19C22 20.1046 21.1046 21 20 21H13C11.8954 21 11 20.1046 11 19C11 17.8954 11.8954 17 13 17H14V16V15.5ZM16.5 11C14.142 11 12.2076 12.8136 12.0156 15.122C10.2825 15.5606 9 17.1305 9 19C9 21.2091 10.7909 23 13 23H20C22.2091 23 24 21.2091 24 19C24 17.1305 22.7175 15.5606 20.9844 15.122C20.7924 12.8136 18.858 11 16.5 11Z"
-                      clip-rule="evenodd"
-                      fill-rule="evenodd"
-                    ></path>
-                  </g>
-                </svg>
-              </div>
-              <div class="text">
-                <span>Click to upload image</span>
-              </div>
-              <input type="file" id="bannerImage" />
-            </label>
-          </div>
-        </div>
-
-        <hr style="margin-bottom: 20px" />
-        <p style="margin-bottom: 10px">Spacing Format</p>
-        <div class="edit-container">
-          <!-- Spacing -->
+        <div id="section-description" class="editor-section">
           <div class="sb-row">
-            <label for="">Padding</label>
-            <div class="paddingmargin-container">
-              <label class="ck-toolbar__item" title="Padding-Top">
-                <span class="material-icons padding-top rotate-top"
-                  >padding</span
-                >
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+              "
+            >
+              <label>Description</label>
+              <button id="openDescModal" class="btn" style="padding: 4px 8px">
+                <span class="material-icons">open_in_full</span>
+              </button>
+            </div>
+            <div
+              id="descriptionEditor"
+              class="component editor-textarea"
+              contenteditable="true"
+              style="min-height: 80px; border: 1px solid #ccc; padding: 5px"
+            ></div>
+          </div>
+        </div>
+
+        <div id="section-text-styles" class="editor-section">
+          <div class="sb-row">
+            <label>Text Styles</label>
+            <div class="txt-style-divs">
+              <label class="ck-toolbar__item" title="Font Size">
+                <span class="material-icons">format_size</span>
+                <input
+                  type="number"
+                  id="fontSize"
+                  min="10.5"
+                  max="36"
+                  value="12"
+                  step="0.5"
+                />
+              </label>
+              &nbsp;
+              <label class="ck-toolbar__item" title="Font Color">
+                <span class="material-icons">format_color_text</span>
+                <input type="color" id="textColor" value="#000000" />
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div id="section-banner-format" class="editor-section">
+          <hr style="margin-bottom: 20px" />
+          <div class="sb-row">
+            <p>Banner Format</p>
+            <div class="edit-container">
+              <label>Banner Image</label>
+              <label class="custum-file-upload" for="bannerImage">
+                <div class="icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <g stroke-width="0"></g>
+                    <g stroke-linejoin="round" stroke-linecap="round"></g>
+                    <g>
+                      <path
+                        d="M10 1C9.73478 1 9.48043 1.10536 9.29289 1.29289L3.29289 7.29289C3.10536 7.48043 3 7.73478 3 8V20C3 21.6569 4.34315 23 6 23H7C7.55228 23 8 22.5523 8 22C8 21.4477 7.55228 21 7 21H6C5.44772 21 5 20.5523 5 20V9H10C10.5523 9 11 8.55228 11 8V3H18C18.5523 3 19 3.44772 19 4V9C19 9.55228 19.4477 10 20 10C20.5523 10 21 9.55228 21 9V4C21 2.34315 19.6569 1 18 1H10ZM9 7H6.41421L9 4.41421V7ZM14 15.5C14 14.1193 15.1193 13 16.5 13C17.8807 13 19 14.1193 19 15.5V16V17H20C21.1046 17 22 17.8954 22 19C22 20.1046 21.1046 21 20 21H13C11.8954 21 11 20.1046 11 19C11 17.8954 11.8954 17 13 17H14V16V15.5ZM16.5 11C14.142 11 12.2076 12.8136 12.0156 15.122C10.2825 15.5606 9 17.1305 9 19C9 21.2091 10.7909 23 13 23H20C22.2091 23 24 21.2091 24 19C24 17.1305 22.7175 15.5606 20.9844 15.122C20.7924 12.8136 18.858 11 16.5 11Z"
+                      ></path>
+                    </g>
+                  </svg>
+                </div>
+                <div class="text"><span>Click to upload image</span></div>
+                <input type="file" id="bannerImage" />
+              </label>
+              <div class="banner-div">
+                <img
+                  src=""
+                  alt="Please upload a banner image."
+                  id="bannerImagePreview"
+                />
+                <span id="bannerErrorMsg" class="error-msg"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="section-spacing" class="editor-section">
+          <hr style="margin-bottom: 20px" />
+          <p style="margin-bottom: 10px">Component Format</p>
+          <div class="edit-container">
+            <div class="spacing-upperdiv">
+              <label class="ck-toolbar__item" title="Background Color">
+                <span class="material-icons">format_color_fill</span>
+                <input type="color" id="bgColor" value="#ffffff" />
+              </label>
+
+              <label class="ck-toolbar__item" title="Alignment">
+                <span class="material-icons">format_align_left</span>
+                <select id="alignmentSelect" class="component">
+                  <option value="left">Left</option>
+                  <option value="center">Center</option>
+                  <option value="right">Right</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="sb-row">
+              <label><b>Padding</b></label>
+              <div class="paddingmargin-container">
+                <label class="ck-toolbar__item" title="Padding-Top">
+                  Top
+                </label>
                 <input
                   type="number"
                   id="paddingTop"
@@ -451,12 +470,9 @@
                   max="100"
                   value="20"
                 />
-              </label>
-
-              <label class="ck-toolbar__item" title="Padding-Right">
-                <span class="material-icons padding-right rotate-right"
-                  >padding</span
-                >
+                <label class="ck-toolbar__item" title="Padding-Right">
+                  Right
+                </label>
                 <input
                   type="number"
                   id="paddingRight"
@@ -464,12 +480,9 @@
                   max="100"
                   value="20"
                 />
-              </label>
-
-              <label class="ck-toolbar__item" title="Padding-Bottom">
-                <span class="material-icons padding-bottom rotate-bottom"
-                  >padding</span
-                >
+                <label class="ck-toolbar__item" title="Padding-Bottom">
+                  Bottom
+                </label>
                 <input
                   type="number"
                   id="paddingBottom"
@@ -477,12 +490,9 @@
                   max="100"
                   value="20"
                 />
-              </label>
-
-              <label class="ck-toolbar__item" title="Padding-Left">
-                <span class="material-icons padding-left rotate-left"
-                  >padding</span
-                >
+                <label class="ck-toolbar__item" title="Padding-Left">
+                  Left
+                </label>
                 <input
                   type="number"
                   id="paddingLeft"
@@ -490,15 +500,12 @@
                   max="100"
                   value="20"
                 />
-              </label>
+              </div>
             </div>
-          </div>
-
-          <div class="sb-row">
-            <label for="">Margin</label>
-            <div class="paddingmargin-container">
-              <label class="ck-toolbar__item" title="Margin-Top">
-                <span class="material-icons margin-top rotate-top">margin</span>
+            <div class="sb-row">
+              <label><b>Margin</b></label>
+              <div class="paddingmargin-container">
+                <label class="ck-toolbar__item" title="Margin-Top"> Top </label>
                 <input
                   type="number"
                   id="marginTop"
@@ -506,12 +513,9 @@
                   max="100"
                   value="20"
                 />
-              </label>
-
-              <label class="ck-toolbar__item" title="Margin-Right">
-                <span class="material-icons margin-right rotate-right"
-                  >margin</span
-                >
+                <label class="ck-toolbar__item" title="Margin-Right">
+                  Right
+                </label>
                 <input
                   type="number"
                   id="marginRight"
@@ -519,12 +523,9 @@
                   max="100"
                   value="20"
                 />
-              </label>
-
-              <label class="ck-toolbar__item" title="Margin-Bottom">
-                <span class="material-icons margin-bottom rotate-bottom"
-                  >margin</span
-                >
+                <label class="ck-toolbar__item" title="Margin-Bottom">
+                  Bottom
+                </label>
                 <input
                   type="number"
                   id="marginBottom"
@@ -532,12 +533,9 @@
                   max="100"
                   value="20"
                 />
-              </label>
-
-              <label class="ck-toolbar__item" title="Margin-Left">
-                <span class="material-icons margin-left rotate-left"
-                  >margin</span
-                >
+                <label class="ck-toolbar__item" title="Margin-Left">
+                  Left
+                </label>
                 <input
                   type="number"
                   id="marginLeft"
@@ -545,78 +543,70 @@
                   max="100"
                   value="20"
                 />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="section-speaker-format" class="editor-section">
+          <hr style="margin-bottom: 20px" />
+          <div class="sb-row">
+            <p>Speaker Format</p>
+            <div class="edit-container">
+              <label>Speaker Image</label>
+              <label class="custum-file-upload" for="speakerImage">
+                <div class="icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <g>
+                      <path
+                        d="M10 1C9.73478 1 9.48043 1.10536 9.29289 1.29289L3.29289 7.29289C3.10536 7.48043 3 7.73478 3 8V20C3 21.6569 4.34315 23 6 23H7C7.55228 23 8 22.5523 8 22C8 21.4477 7.55228 21 7 21H6C5.44772 21 5 20.5523 5 20V9H10C10.5523 9 11 8.55228 11 8V3H18C18.5523 3 19 3.44772 19 4V9C19 9.55228 19.4477 10 20 10C20.5523 10 21 9.55228 21 9V4C21 2.34315 19.6569 1 18 1H10ZM9 7H6.41421L9 4.41421V7ZM14 15.5C14 14.1193 15.1193 13 16.5 13C17.8807 13 19 14.1193 19 15.5V16V17H20C21.1046 17 22 17.8954 22 19C22 20.1046 21.1046 21 20 21H13C11.8954 21 11 20.1046 11 19C11 17.8954 11.8954 17 13 17H14V16V15.5ZM16.5 11C14.142 11 12.2076 12.8136 12.0156 15.122C10.2825 15.5606 9 17.1305 9 19C9 21.2091 10.7909 23 13 23H20C22.2091 23 24 21.2091 24 19C24 17.1305 22.7175 15.5606 20.9844 15.122C20.7924 12.8136 18.858 11 16.5 11Z"
+                      ></path>
+                    </g>
+                  </svg>
+                </div>
+                <div class="text"><span>Click to upload image</span></div>
+                <input type="file" id="speakerImage" />
               </label>
-            </div>
-          </div>
-        </div>
-        <hr style="margin-bottom: 20px" />
-
-        <div class="sb-row">
-          <p>Speaker Format</p>
-          <div class="edit-container">
-            <label>Speaker Image</label>
-            <label class="custum-file-upload" for="speakerImage">
-              <div class="icon">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill=""
-                  viewBox="0 0 24 24"
-                >
-                  <g stroke-width="0" id="SVGRepo_bgCarrier"></g>
-                  <g
-                    stroke-linejoin="round"
-                    stroke-linecap="round"
-                    id="SVGRepo_tracerCarrier"
-                  ></g>
-                  <g id="SVGRepo_iconCarrier">
-                    <path
-                      fill=""
-                      d="M10 1C9.73478 1 9.48043 1.10536 9.29289 1.29289L3.29289 7.29289C3.10536 7.48043 3 7.73478 3 8V20C3 21.6569 4.34315 23 6 23H7C7.55228 23 8 22.5523 8 22C8 21.4477 7.55228 21 7 21H6C5.44772 21 5 20.5523 5 20V9H10C10.5523 9 11 8.55228 11 8V3H18C18.5523 3 19 3.44772 19 4V9C19 9.55228 19.4477 10 20 10C20.5523 10 21 9.55228 21 9V4C21 2.34315 19.6569 1 18 1H10ZM9 7H6.41421L9 4.41421V7ZM14 15.5C14 14.1193 15.1193 13 16.5 13C17.8807 13 19 14.1193 19 15.5V16V17H20C21.1046 17 22 17.8954 22 19C22 20.1046 21.1046 21 20 21H13C11.8954 21 11 20.1046 11 19C11 17.8954 11.8954 17 13 17H14V16V15.5ZM16.5 11C14.142 11 12.2076 12.8136 12.0156 15.122C10.2825 15.5606 9 17.1305 9 19C9 21.2091 10.7909 23 13 23H20C22.2091 23 24 21.2091 24 19C24 17.1305 22.7175 15.5606 20.9844 15.122C20.7924 12.8136 18.858 11 16.5 11Z"
-                      clip-rule="evenodd"
-                      fill-rule="evenodd"
-                    ></path>
-                  </g>
-                </svg>
-              </div>
-              <div class="text">
-                <span>Click to upload image</span>
-              </div>
-              <input type="file" id="speakerImage" />
-            </label>
-            <div class="speaker-div">
-              <div class="speaker-image">
-                <img src="img/HeadshotPlaceholder.png" alt="" />
-              </div>
-              <div class="speaker-text">
-                <input type="text" />
-                <input type="text" />
-                <input type="text" />
+              <div class="speaker-div">
+                <div class="speaker-image">
+                  <img src="img/HeadshotPlaceholder.png" alt="" />
+                </div>
+                <div class="speaker-text">
+                  <input type="text" placeholder="Name" />
+                  <input type="text" placeholder="Title" />
+                  <input type="text" placeholder="Details" />
+                </div>
               </div>
             </div>
           </div>
         </div>
-        <hr style="margin-bottom: 20px" />
 
-        <!-- Actions -->
-        <div class="editor-actions">
-          <button id="resetBtn" class="btn editor-btn-secondary" disabled>
-            Reset
+        <div id="section-actions">
+          <hr style="margin-top: 20px; margin-bottom: 20px" />
+          <div class="editor-actions">
+            <button id="resetBtn" class="btn editor-btn-secondary" disabled>
+              Reset
+            </button>
+            <button id="applyBtn" class="btn editor-btn-primary" disabled>
+              Apply
+            </button>
+            <button id="moveUpBtn" class="btn" disabled>Move Up</button>
+            <button id="moveDownBtn" class="btn" disabled>Move Down</button>
+          </div>
+          <button
+            id="deleteComponentBtn"
+            class="btn"
+            style="
+              margin-top: 10px;
+              width: 100%;
+              background: #ff3b30;
+              color: #fff;
+            "
+            disabled
+          >
+            Delete Component
           </button>
-          <button id="applyBtn" class="btn editor-btn-primary" disabled>
-            Apply
-          </button>
-          <button id="moveUpBtn" class="btn" disabled>Move Up</button>
-          <button id="moveDownBtn" class="btn" disabled>Move Down</button>
         </div>
-
-        <button
-          id="deleteComponentBtn"
-          class="btn"
-          style="margin-top: 10px; background: #ff3b30; color: #fff"
-          disabled
-        >
-          Delete Component
-        </button>
       </div>
     </div>
 
@@ -716,18 +706,9 @@
           <div
             class="Headline-div selectable"
             data-component="headline"
-            style="padding: 20px"
+            style="padding: 20px; background-color: #ffffff"
           >
-            <h1
-              style="
-                margin: 0px;
-                background-color: #ffffff;
-                text-align: center;
-                color: #4472c4;
-              "
-            >
-              Headline Text
-            </h1>
+            <h1 style="margin: 0px; color: #4472c4">Headline Text</h1>
           </div>
         </td>
       </tr>
@@ -750,7 +731,11 @@
     <template id="tpl-cta">
       <tr>
         <td>
-          <div class="CTA-div selectable" data-component="cta">
+          <div
+            class="CTA-div selectable"
+            data-component="cta"
+            style="text-align: center; background-color: #ffffff"
+          >
             <a href="#">Register now ></a>
           </div>
         </td>
@@ -760,7 +745,11 @@
     <template id="tpl-speaker">
       <tr>
         <td>
-          <div class="Speaker-div selectable" data-component="speaker">
+          <div
+            class="Speaker-div selectable"
+            data-component="speaker"
+            style="background-color: #ffffff"
+          >
             <div
               class="speaker-info"
               style="
