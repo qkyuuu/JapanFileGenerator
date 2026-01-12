@@ -146,27 +146,37 @@ function updateEditor(type, element) {
     const computedTextStyle = window.getComputedStyle(target);
     const currentColor = computedTextStyle.color;
 
-    // Update the color picker input and the editor's text color
     textColorInput.value = rgbToHex(currentColor);
     editorDiv.style.color = currentColor;
-
-    // Fill the editor with the component content
     editorDiv.innerHTML = target.innerHTML;
   } else {
-    // Clear editor if no text target exists (e.g., for image-only components)
     editorDiv.innerHTML = "";
     editorDiv.style.color = "inherit";
   }
 
-  // 3. Sync background color
-  // Inside your selection/click listener where you update the editor:
-  const bgColor = window.getComputedStyle(selectedElement).backgroundColor;
+  // 3. Sync background colors (Container vs. Element Fill)
+  const bgColor = window.getComputedStyle(element).backgroundColor;
+  const bgColorInput = document.getElementById("bgColor");
+  const btnBgInput = document.getElementById("btnBgColor");
 
-  // If the color is transparent, set the color picker to white (#ffffff)
+  // Sync main component background color
   if (bgColor === "rgba(0, 0, 0, 0)" || bgColor === "transparent") {
-    document.getElementById("bgColor").value = "#ffffff";
+    bgColorInput.value = "#ffffff";
   } else {
-    document.getElementById("bgColor").value = rgbToHex(bgColor);
+    bgColorInput.value = rgbToHex(bgColor);
+  }
+
+  // NEW: Sync the specific "Fill Color" for CTA or Content
+  if (type === "cta") {
+    const buttonLink = element.querySelector("a");
+    if (buttonLink) {
+      btnBgInput.value = rgbToHex(
+        window.getComputedStyle(buttonLink).backgroundColor
+      );
+    }
+  } else if (type === "content") {
+    // For content, the element fill is the same as the block background
+    btnBgInput.value = rgbToHex(bgColor);
   }
 
   // 4. Sync Alignment
@@ -175,6 +185,7 @@ function updateEditor(type, element) {
 
   // 5. Sync Spacing (Padding & Margin)
   const computedStyle = window.getComputedStyle(element);
+
   paddingTopInput.value = parseInt(computedStyle.paddingTop) || 0;
   paddingRightInput.value = parseInt(computedStyle.paddingRight) || 0;
   paddingBottomInput.value = parseInt(computedStyle.paddingBottom) || 0;
@@ -211,7 +222,7 @@ function updateEditor(type, element) {
     const pageImg = element.querySelector(".speaker-info img");
     speakerEditorImg.src = pageImg?.src || "img/HeadshotPlaceholder.png";
   } else {
-    speakerDivEditor.style.display = "none";
+    if (speakerDivEditor) speakerDivEditor.style.display = "none";
   }
 
   // 7. Handle Banner Component Logic
@@ -219,8 +230,10 @@ function updateEditor(type, element) {
     selectedBannerComponent = element;
     const bannerImage = element.querySelector("img");
     if (bannerImage) {
-      document.querySelector(".editor-banner-image-preview").src =
-        bannerImage.src;
+      const bannerPreview = document.querySelector(
+        ".editor-banner-image-preview"
+      );
+      if (bannerPreview) bannerPreview.src = bannerImage.src;
     }
   }
 }
@@ -232,12 +245,18 @@ document.addEventListener("click", (e) => {
   const clickedInsidePage = e.target.closest(".oft-content");
   const clickedInsideEditor = e.target.closest(".editor");
   const clickedInsideModal = e.target.closest(".modal");
+  const isInputOrButton =
+    e.target.closest("input") ||
+    e.target.closest("button") ||
+    e.target.closest("select") ||
+    e.target.closest("label");
 
   // Deselect the active element if clicked outside of these areas
   if (
     !clickedInsidePage &&
     !clickedInsideEditor &&
     !clickedInsideModal &&
+    !isInputOrButton &&
     activeElement
   ) {
     // Remove the 'selected' class from the active element
@@ -410,11 +429,15 @@ alignmentSelect.addEventListener("change", () => {
 
 // -----------------------------
 // APPLY EDITING TO COMPONENT (with background color)
-applyBtn.addEventListener("click", () => {
+// 1. Added (e) here so the event object is available
+applyBtn.addEventListener("click", (e) => {
   if (!activeElement) return;
 
-  // 1. Apply Layout & Background Styles
-  const bgColor = bgColorInput.value;
+  // 2. This now works correctly to prevent the "Deselect" bug
+  e.stopPropagation();
+
+  // --- 1. Apply Layout & Background Styles ---
+  const bgColor = document.getElementById("bgColor").value;
   activeElement.style.backgroundColor = bgColor;
 
   activeElement.style.padding = `${paddingTopInput.value}px ${paddingRightInput.value}px ${paddingBottomInput.value}px ${paddingLeftInput.value}px`;
@@ -425,16 +448,16 @@ applyBtn.addEventListener("click", () => {
     activeElement.style.textAlign = selectedAlignment;
   }
 
-  // 2. Handle Content Logic
+  // --- 2. Handle Content Logic ---
   const type = activeElement.dataset.component;
 
   if (type === "speaker") {
-    // ... (Keep your speaker logic exactly as it is) ...
     const ps = activeElement.querySelectorAll(".speaker-details p");
     const pageImg = activeElement.querySelector(".speaker-info img");
     const speakerDivEditor = document.querySelector(
       ".edit-container .speaker-div"
     );
+
     const speakerNameInput = speakerDivEditor.querySelector(
       "input:nth-of-type(1)"
     );
@@ -452,30 +475,50 @@ applyBtn.addEventListener("click", () => {
     if (ps[2]) ps[2].textContent = speakerOtherInput.value;
     if (pageImg) pageImg.src = speakerEditorImg.src;
   } else {
-    // --- REPLACE THIS SECTION ---
     let target;
     if (type === "headline") target = activeElement.querySelector("h1");
     else if (type === "content") target = activeElement.querySelector("p");
     else if (type === "cta") target = activeElement.querySelector("a");
-    else if (type === "banText") target = activeElement; // Added banText support
+    else if (type === "banText") target = activeElement;
 
     if (target) {
-      // Apply the HTML (for specific highlighted text colors)
       target.innerHTML = editorDiv.innerHTML;
-
-      // Apply the container color (for "apply to all" logic)
       target.style.color = editorDiv.style.color;
     }
-    // ----------------------------
   }
 
-  // 3. Handle Banner Image
-  if (newBannerImageURL && selectedBannerComponent) {
-    const bannerImage = selectedBannerComponent.querySelector("img");
+  // --- 3. Handle Banner Image ---
+  if (newBannerImageURL && type === "banner") {
+    const bannerImage = activeElement.querySelector("img");
     if (bannerImage) bannerImage.src = newBannerImageURL;
   }
 
-  applyBtn.disabled = true;
+  // --- 4. Handle Element Fill Color (Button or Content Block) ---
+  const btnBgInput = document.getElementById("btnBgColor");
+  if (btnBgInput) {
+    const btnBgValue = btnBgInput.value;
+    if (type === "cta") {
+      const buttonLink = activeElement.querySelector("a");
+      if (buttonLink) buttonLink.style.backgroundColor = btnBgValue;
+    } else if (type === "content") {
+      // NOTE: This targets the inner <p> for the background fill
+      // so it doesn't conflict with the main container bgColor
+      const contentPara = activeElement.querySelector("p");
+      if (contentPara) contentPara.style.backgroundColor = btnBgValue;
+    }
+  }
+
+  // 3. Keep the element visually selected after apply
+  activeElement.classList.add("selected");
+
+  const originalText = applyBtn.textContent;
+  applyBtn.textContent = "Applied!";
+  applyBtn.style.backgroundColor = "#28a745"; // Change to green briefly
+
+  setTimeout(() => {
+    applyBtn.textContent = originalText;
+    applyBtn.style.backgroundColor = ""; // Reset to original CSS color
+  }, 1000);
   autoSave();
 });
 
@@ -865,6 +908,9 @@ function configureEditorPanels(type) {
     actions: document.getElementById("section-actions"),
   };
 
+  // NEW: Grab the specific label for the element fill color
+  const btnColorLabel = document.getElementById("btnColorRow");
+
   // 1. Hide everything by default to "reset" the sidebar
   Object.values(sections).forEach((section) => {
     if (section) section.style.display = "none";
@@ -883,7 +929,7 @@ function configureEditorPanels(type) {
       if (sections.description) sections.description.style.display = "block";
       if (sections.textStyles) sections.textStyles.style.display = "block";
       if (sections.alignment) sections.alignment.style.display = "block";
-      if (sections.spacing) sections.spacing.style.display = "block"; // <--- This shows spacing
+      if (sections.spacing) sections.spacing.style.display = "block";
       break;
 
     case "banner":
@@ -897,8 +943,60 @@ function configureEditorPanels(type) {
       break;
 
     default:
-      // Fallback: show spacing for any other selectable component
       if (sections.spacing) sections.spacing.style.display = "block";
       break;
   }
+
+  // 4. Final Override: Specifically handle the CKEditor-style icon visibility
+  // We check for its existence first to prevent errors
+  if (btnColorLabel) {
+    if (type === "cta") {
+      btnColorLabel.style.display = "inline-block";
+    } else {
+      btnColorLabel.style.display = "none";
+    }
+  }
 }
+const addLinkBtn = document.getElementById("addLinkBtn");
+
+addLinkBtn.addEventListener("click", () => {
+  // 1. Ensure the modal editor is focused and selection is restored
+  modalEditor.focus();
+  if (savedModalSelection) {
+    restoreModalSelection();
+  }
+
+  // 2. Check if the user has actually highlighted text
+  const selection = window.getSelection();
+  if (selection.toString().length === 0) {
+    alert("Please highlight the text you want to turn into a link first.");
+    return;
+  }
+
+  // 3. Ask for the URL
+  let url = prompt("Enter the URL:", "https://");
+
+  if (url && url.trim() !== "" && url !== "https://") {
+    if (!/^https?:\/\//i.test(url)) {
+      url = "https://" + url;
+    }
+
+    document.execCommand("createLink", false, url);
+
+    const selectionParent = selection.anchorNode.parentElement;
+    if (selectionParent && selectionParent.tagName === "A") {
+      selectionParent.setAttribute("target", "_blank");
+      selectionParent.style.color = "#0066cc";
+      selectionParent.style.textDecoration = "underline";
+    } else {
+      // Fallback: If anchorNode isn't direct, fix all links to be safe
+      const links = modalEditor.getElementsByTagName("a");
+      for (let link of links) {
+        link.setAttribute("target", "_blank");
+      }
+    }
+
+    // 6. Save the new state
+    saveModalSelection();
+  }
+});
