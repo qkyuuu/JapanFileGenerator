@@ -20,6 +20,8 @@
     />
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   </head>
   <body>
     <nav class="topbar">
@@ -192,47 +194,81 @@
                 </div>
               </td>
             </tr>
-            <tr>
-              <td>
-                <div
-                  class="Content-div selectable"
-                  data-component="content"
-                  style="padding: 20px; margin: 0px; background-color: #ffffff"
-                >
-                  <p>Content text</p>
-                </div>
+            <tr class="selectable" data-component="content">
+              <td
+                align="left"
+                style="
+                  font-size: 11pt;
+                  font-family: 'Segoe UI', Verdana, Geneva, Sans-serif;
+                  text-align: left;
+                  padding: 20px;
+                  margin: 0px;
+                  background-color: #ffffff;
+                  color: #000000;
+                "
+              >
+                <p>Content text</p>
               </td>
             </tr>
-            <tr>
-              <td>
-                <div
-                  class="CTA-div selectable"
-                  data-component="cta"
-                  style="text-align: center"
-                >
-                  <a href="#">Register now ></a>
-                </div>
+            <tr class="selectable" data-component="cta">
+              <td align="center">
+                <table border="0" cellspacing="0" cellpadding="0">
+                  <tr>
+                    <td bgcolor="#0078d4" style="padding: 10px 35px">
+                      <a href="#" style="color: #ffffff; text-decoration: none"
+                        >Register Now</a
+                      >
+                    </td>
+                  </tr>
+                </table>
               </td>
             </tr>
-            <tr>
-              <td>
-                <div
-                  class="Speaker-div selectable"
-                  data-component="speaker"
-                  style="padding: 20px"
+            <tr class="selectable" data-component="speaker">
+              <td style="padding: 20px; background-color: #ffffff">
+                <table
+                  border="0"
+                  cellpadding="0"
+                  cellspacing="0"
+                  width="100%"
+                  style="border-collapse: collapse"
                 >
-                  <div
-                    class="speaker-info"
-                    style="display: flex; gap: 20px; align-items: center"
-                  >
-                    <img src="img/SpeakerHeadshot.png" alt="" width="80px" />
-                    <div class="speaker-details">
-                      <p><strong>Speaker Name</strong></p>
-                      <p>Speaker Title</p>
-                      <p>Other Information</p>
-                    </div>
-                  </div>
-                </div>
+                  <tr>
+                    <td valign="middle" width="80" style="width: 80px">
+                      <img
+                        src="img/SpeakerHeadshot.png"
+                        alt="Speaker Name"
+                        width="80"
+                        style="
+                          display: block;
+                          border: 0;
+                          width: 80px;
+                          height: auto;
+                        "
+                      />
+                    </td>
+
+                    <td width="20" style="width: 20px">&nbsp;</td>
+
+                    <td
+                      valign="middle"
+                      style="
+                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana,
+                          sans-serif;
+                        font-size: 10.5pt;
+                        color: #464646;
+                        line-height: 1.4;
+                      "
+                    >
+                      <p style="margin: 0; font-size: 10.5pt">
+                        <strong>Speaker Name</strong>
+                      </p>
+                      <p style="margin: 0; font-size: 10.5pt">Speaker Title</p>
+                      <p style="margin: 0; font-size: 10.5pt">
+                        Other Information
+                      </p>
+                    </td>
+                  </tr>
+                </table>
               </td>
             </tr>
             <tr id="footerRow">
@@ -355,6 +391,10 @@
         <div class="sb-row">
           <label>Component</label>
           <div class="component editor-readonly">Header</div>
+          <label for="addNote">
+            <input type="checkbox" id="addNote" /> Add Note
+          </label>
+          <textarea id="noteFor"></textarea>
         </div>
 
         <div id="section-description" class="editor-section">
@@ -740,57 +780,106 @@
 
     <template id="tpl-content">
       <tr>
-        <td>
-          <div
-            class="Content-div selectable"
-            data-component="content"
-            style="padding: 20px; margin: 0px; background-color: #ffffff"
-          >
-            <p>Content text</p>
-          </div>
+        <td
+          align="left"
+          class="mFont"
+          style="
+            font-size: 11pt;
+            font-family: 'Segoe UI', Verdana, Geneva, Sans-serif;
+            text-align: left;
+            padding: 20px;
+            margin: 0px;
+            background-color: #ffffff;
+            color: #000000;
+          "
+          class="Content-div selectable"
+          data-component="content"
+        >
+          <p>Content text</p>
         </td>
       </tr>
     </template>
 
     <template id="tpl-cta">
       <tr>
-        <td>
-          <div
-            class="CTA-div selectable"
-            data-component="cta"
-            style="text-align: center; background-color: #ffffff"
+        <td
+          class="CTA-div selectable"
+          data-component="cta"
+          align="center"
+          bgcolor="#ffffff"
+          style="padding: 20px; margin: 0px"
+        >
+          <table
+            border="0"
+            cellspacing="0"
+            cellpadding="0"
+            role="presentation"
+            align="center"
           >
-            <a href="#">Register now ></a>
-          </div>
+            <tr>
+              <td
+                bgcolor="#0078d4"
+                valign="top"
+                style="
+                  font-size: 12pt;
+                  font-family: 'Yu Gothic UI';
+                  padding: 10px 35px;
+                "
+                align="center"
+              >
+                <a
+                  href="#"
+                  target="_blank"
+                  style="text-decoration: none; color: #ffffff"
+                >
+                  <strong>Register Now</strong>
+                </a>
+              </td>
+            </tr>
+          </table>
         </td>
       </tr>
     </template>
 
     <template id="tpl-speaker">
-      <tr>
-        <td>
-          <div
-            class="Speaker-div selectable"
-            data-component="speaker"
-            style="background-color: #ffffff"
+      <tr class="selectable" data-component="speaker">
+        <td style="padding: 20px; background-color: #ffffff">
+          <table
+            border="0"
+            cellpadding="0"
+            cellspacing="0"
+            width="100%"
+            style="border-collapse: collapse"
           >
-            <div
-              class="speaker-info"
-              style="
-                display: flex;
-                padding: 20px;
-                gap: 20px;
-                align-items: center;
-              "
-            >
-              <img src="img/SpeakerHeadshot.png" alt="" width="80px" />
-              <div class="speaker-details">
-                <p><strong>Speaker Name</strong></p>
-                <p>Speaker Title</p>
-                <p>Other Information</p>
-              </div>
-            </div>
-          </div>
+            <tr>
+              <td valign="middle" width="80" style="width: 80px">
+                <img
+                  src="img/SpeakerHeadshot.png"
+                  alt="Speaker Name"
+                  width="80"
+                  style="display: block; border: 0; width: 80px; height: auto"
+                />
+              </td>
+
+              <td width="20" style="width: 20px">&nbsp;</td>
+
+              <td
+                valign="middle"
+                style="
+                  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                  font-size: 10.5pt;
+                  color: #464646;
+                  line-height: 1.4;
+                "
+              >
+                <p style="margin: 0; font-size: 10.5pt">
+                  <strong>Speaker Name</strong>
+                </p>
+                <p style="margin: 0; font-size: 10.5pt">Speaker Title</p>
+                <p style="margin: 0; font-size: 10.5pt">Other Information</p>
+              </td>
+            </tr>
+          </table>
         </td>
       </tr>
     </template>
