@@ -127,116 +127,237 @@ function resetEditorState() {
   marginLeftInput.value = 0;
 }
 
-// -----------------------------
-// UPDATE EDITOR CONTENT (with background color)
 function updateEditor(type, element) {
   configureEditorPanels(type);
+  activeElement = element;
+
   document.querySelector(".editor-readonly").textContent =
     type.charAt(0).toUpperCase() + type.slice(1);
 
-  // 1. Identify the target text element immediately
-  let target;
-  if (type === "headline") target = element.querySelector("h1");
-  else if (type === "content") target = element.querySelector("p");
-  else if (type === "cta") target = element.querySelector("a");
-  else if (type === "banText") target = element;
+  // --- 1. Identify style and text targets ---
+  const targetForStyle =
+    element.tagName === "TR" ? element.querySelector("td") : element;
+  const style = window.getComputedStyle(targetForStyle);
 
-  // 2. Sync Text Color & Content to Editor
-  if (target) {
-    const computedTextStyle = window.getComputedStyle(target);
-    const currentColor = computedTextStyle.color;
+  let textTarget;
+  if (type === "headline") textTarget = element.querySelector("h1");
+  else if (type === "content") textTarget = element.querySelector("p");
+  else if (type === "cta") textTarget = element.querySelector("a");
+  else if (type === "banText") textTarget = element.querySelector("p");
 
-    textColorInput.value = rgbToHex(currentColor);
-    editorDiv.style.color = currentColor;
-    editorDiv.innerHTML = target.innerHTML;
-  } else {
-    editorDiv.innerHTML = "";
-    editorDiv.style.color = "inherit";
+  if (textTarget) {
+    const computedTextStyle = window.getComputedStyle(textTarget);
+    textColorInput.value = rgbToHex(computedTextStyle.color);
+    editorDiv.innerHTML = textTarget.innerHTML;
+    if (fontSizeInput)
+      fontSizeInput.value = parseFloat(computedTextStyle.fontSize);
   }
 
-  // 3. Sync background colors (Container vs. Element Fill)
-  const bgColor = window.getComputedStyle(element).backgroundColor;
-  const bgColorInput = document.getElementById("bgColor");
+  // --- 2. Background Color Logic ---
+  let currentBg =
+    targetForStyle.getAttribute("bgcolor") ||
+    targetForStyle.style.backgroundColor;
+  if (
+    !currentBg ||
+    currentBg === "transparent" ||
+    currentBg === "rgba(0, 0, 0, 0)"
+  ) {
+    currentBg = style.backgroundColor;
+  }
+  bgColorInput.value = rgbToHex(currentBg);
+
+  // --- 3. CTA Specific Color ---
   const btnBgInput = document.getElementById("btnBgColor");
-
-  // Sync main component background color
-  if (bgColor === "rgba(0, 0, 0, 0)" || bgColor === "transparent") {
-    bgColorInput.value = "#ffffff";
-  } else {
-    bgColorInput.value = rgbToHex(bgColor);
-  }
-
-  // NEW: Sync the specific "Fill Color" for CTA or Content
   if (type === "cta") {
-    const buttonLink = element.querySelector("a");
-    if (buttonLink) {
-      btnBgInput.value = rgbToHex(
-        window.getComputedStyle(buttonLink).backgroundColor
-      );
+    const buttonTd = element.querySelector("table td[bgcolor]");
+    if (buttonTd) {
+      btnBgInput.value = rgbToHex(buttonTd.getAttribute("bgcolor"));
     }
-  } else if (type === "content") {
-    // For content, the element fill is the same as the block background
-    btnBgInput.value = rgbToHex(bgColor);
+  } else {
+    btnBgInput.value = bgColorInput.value;
   }
 
-  // 4. Sync Alignment
-  const alignment = window.getComputedStyle(element).textAlign;
-  updateAlignmentDropdown(alignment);
+  // --- 4. Spacing (Fix: Prioritize inline styles to avoid browser computed 20px) ---
+  const getVal = (el, prop) => parseInt(el.style[prop]) || 0;
 
-  // 5. Sync Spacing (Padding & Margin)
-  const computedStyle = window.getComputedStyle(element);
+  document.getElementById("paddingTop").value =
+    getVal(targetForStyle, "paddingTop") || parseInt(style.paddingTop) || 0;
+  document.getElementById("paddingRight").value =
+    getVal(targetForStyle, "paddingRight") || parseInt(style.paddingRight) || 0;
+  document.getElementById("paddingBottom").value =
+    getVal(targetForStyle, "paddingBottom") ||
+    parseInt(style.paddingBottom) ||
+    0;
+  document.getElementById("paddingLeft").value =
+    getVal(targetForStyle, "paddingLeft") || parseInt(style.paddingLeft) || 0;
 
-  paddingTopInput.value = parseInt(computedStyle.paddingTop) || 0;
-  paddingRightInput.value = parseInt(computedStyle.paddingRight) || 0;
-  paddingBottomInput.value = parseInt(computedStyle.paddingBottom) || 0;
-  paddingLeftInput.value = parseInt(computedStyle.paddingLeft) || 0;
+  // Margins only apply to DIV components; TDs (Content/Speaker) should default to 0
+  if (element.tagName === "DIV") {
+    document.getElementById("marginTop").value = getVal(element, "marginTop");
+    document.getElementById("marginRight").value = getVal(
+      element,
+      "marginRight"
+    );
+    document.getElementById("marginBottom").value = getVal(
+      element,
+      "marginBottom"
+    );
+    document.getElementById("marginLeft").value = getVal(element, "marginLeft");
+  } else {
+    // Reset fields for Table-based components
+    ["marginTop", "marginRight", "marginBottom", "marginLeft"].forEach((id) => {
+      document.getElementById(id).value = 0;
+    });
+  }
 
-  marginTopInput.value = parseInt(computedStyle.marginTop) || 0;
-  marginRightInput.value = parseInt(computedStyle.marginRight) || 0;
-  marginBottomInput.value = parseInt(computedStyle.marginBottom) || 0;
-  marginLeftInput.value = parseInt(computedStyle.marginLeft) || 0;
-
-  // 6. Handle Speaker Component Logic
+  // --- 5. Speaker Logic ---
   const speakerDivEditor = document.querySelector(
     ".edit-container .speaker-div"
   );
-  if (type === "speaker") {
+  if (type === "speaker" && speakerDivEditor) {
     speakerDivEditor.style.display = "flex";
-    const speakerNameInput = speakerDivEditor.querySelector(
-      "input:nth-of-type(1)"
+    const inputs = speakerDivEditor.querySelectorAll("input");
+    const ps = element.querySelectorAll("p");
+    const pageImg = element.querySelector("img");
+    const editorImg = speakerDivEditor.querySelector(".speaker-image img");
+
+    if (ps[0]) inputs[0].value = ps[0].textContent;
+    if (ps[1]) inputs[1].value = ps[1].textContent;
+    if (ps[2]) inputs[2].value = ps[2].textContent;
+    if (pageImg && editorImg) editorImg.src = pageImg.src;
+  }
+
+  // --- 6. Banner Logic ---
+  if (type === "banner") {
+    const bannerImg = element.querySelector("img");
+    if (bannerImg && bannerImagePreview) bannerImagePreview.src = bannerImg.src;
+  }
+
+  // --- 7. Sticky Note State ---
+  const noteCheckbox = document.querySelector('label[for="addNote"] input');
+  const noteInput = document.getElementById("noteFor");
+  const existingNote = element.querySelector(".component-note");
+
+  if (existingNote) {
+    if (noteCheckbox) noteCheckbox.checked = true;
+    noteInput.style.display = "block";
+    noteInput.value = existingNote.textContent;
+  } else {
+    if (noteCheckbox) noteCheckbox.checked = false;
+    noteInput.style.display = "none";
+    noteInput.value = "";
+  }
+}
+
+applyBtn.addEventListener("click", (e) => {
+  if (!activeElement) return;
+  e.stopPropagation();
+
+  const type = activeElement.dataset.component;
+  const targetForStyle =
+    activeElement.tagName === "TR"
+      ? activeElement.querySelector("td")
+      : activeElement;
+
+  // --- 1. Apply Layout & Background Styles ---
+  const bgColor = document.getElementById("bgColor").value;
+
+  // Set bgcolor attribute for email clients and style for preview
+  targetForStyle.setAttribute("bgcolor", bgColor);
+  targetForStyle.style.backgroundColor = bgColor;
+
+  // Apply Padding to the TD or DIV
+  targetForStyle.style.paddingTop =
+    document.getElementById("paddingTop").value + "px";
+  targetForStyle.style.paddingRight =
+    document.getElementById("paddingRight").value + "px";
+  targetForStyle.style.paddingBottom =
+    document.getElementById("paddingBottom").value + "px";
+  targetForStyle.style.paddingLeft =
+    document.getElementById("paddingLeft").value + "px";
+
+  // Apply Margin only if it's a DIV (Rows don't support margin)
+  if (activeElement.tagName === "DIV") {
+    activeElement.style.marginTop =
+      document.getElementById("marginTop").value + "px";
+    activeElement.style.marginBottom =
+      document.getElementById("marginBottom").value + "px";
+  }
+
+  // --- 2. Handle Content Logic ---
+  if (type === "speaker") {
+    const speakerDivEditor = document.querySelector(
+      ".edit-container .speaker-div"
     );
-    const speakerTitleInput = speakerDivEditor.querySelector(
-      "input:nth-of-type(2)"
-    );
-    const speakerOtherInput = speakerDivEditor.querySelector(
-      "input:nth-of-type(3)"
-    );
+    const ps = activeElement.querySelectorAll("p");
+    const pageImg = activeElement.querySelector("img");
+    const inputs = speakerDivEditor.querySelectorAll("input");
     const speakerEditorImg =
       speakerDivEditor.querySelector(".speaker-image img");
 
-    const ps = element.querySelectorAll(".speaker-details p");
-    speakerNameInput.value = ps[0]?.textContent || "";
-    speakerTitleInput.value = ps[1]?.textContent || "";
-    speakerOtherInput.value = ps[2]?.textContent || "";
-
-    const pageImg = element.querySelector(".speaker-info img");
-    speakerEditorImg.src = pageImg?.src || "img/HeadshotPlaceholder.png";
+    if (ps[0]) ps[0].textContent = inputs[0].value;
+    if (ps[1]) ps[1].textContent = inputs[1].value;
+    if (ps[2]) ps[2].textContent = inputs[2].value;
+    if (pageImg) pageImg.src = speakerEditorImg.src;
   } else {
-    if (speakerDivEditor) speakerDivEditor.style.display = "none";
-  }
+    let target;
+    if (type === "headline") target = activeElement.querySelector("h1");
+    else if (type === "content") target = activeElement.querySelector("p");
+    else if (type === "cta") target = activeElement.querySelector("a");
+    else if (type === "banText") target = activeElement.querySelector("p");
 
-  // 7. Handle Banner Component Logic
-  if (type === "banner") {
-    selectedBannerComponent = element;
-    const bannerImage = element.querySelector("img");
-    if (bannerImage) {
-      const bannerPreview = document.querySelector(
-        ".editor-banner-image-preview"
-      );
-      if (bannerPreview) bannerPreview.src = bannerImage.src;
+    if (target) {
+      target.innerHTML = editorDiv.innerHTML;
+      target.style.color = textColorInput.value;
+      if (fontSizeInput) target.style.fontSize = fontSizeInput.value + "pt";
     }
   }
-}
+
+  // --- 3. Handle Banner Image ---
+  if (newBannerImageURL && type === "banner") {
+    const bannerImage = activeElement.querySelector("img");
+    if (bannerImage) bannerImage.src = newBannerImageURL;
+  }
+
+  // --- 4. Handle CTA Button Color ---
+  if (type === "cta") {
+    const buttonTd = activeElement.querySelector("table td[bgcolor]");
+    if (buttonTd) {
+      buttonTd.setAttribute(
+        "bgcolor",
+        document.getElementById("btnBgColor").value
+      );
+    }
+  }
+
+  // --- 5. Handle Note Logic ---
+  const noteCheckbox = document.querySelector('label[for="addNote"] input');
+  const noteInput = document.getElementById("noteFor");
+  let noteBubble = activeElement.querySelector(".component-note");
+
+  if (noteCheckbox && noteCheckbox.checked && noteInput.value.trim() !== "") {
+    if (!noteBubble) {
+      noteBubble = document.createElement("div");
+      noteBubble.className = "component-note";
+      activeElement.style.position = "relative";
+      activeElement.appendChild(noteBubble);
+    }
+    noteBubble.textContent = noteInput.value;
+  } else if (noteBubble) {
+    noteBubble.remove();
+  }
+
+  // Visual Feedback
+  const originalText = applyBtn.textContent;
+  applyBtn.textContent = "Applied!";
+  applyBtn.style.backgroundColor = "#28a745";
+  setTimeout(() => {
+    applyBtn.textContent = originalText;
+    applyBtn.style.backgroundColor = "";
+  }, 1000);
+
+  autoSave();
+});
 
 // -----------------------------
 // DESELECT ON OUTSIDE CLICK (reset background color)
@@ -427,101 +548,6 @@ alignmentSelect.addEventListener("change", () => {
   activeElement.dataset.selectedAlignment = selectedAlignment;
 });
 
-// -----------------------------
-// APPLY EDITING TO COMPONENT (with background color)
-// 1. Added (e) here so the event object is available
-applyBtn.addEventListener("click", (e) => {
-  if (!activeElement) return;
-
-  // 2. This now works correctly to prevent the "Deselect" bug
-  e.stopPropagation();
-
-  // --- 1. Apply Layout & Background Styles ---
-  const bgColor = document.getElementById("bgColor").value;
-  activeElement.style.backgroundColor = bgColor;
-
-  activeElement.style.padding = `${paddingTopInput.value}px ${paddingRightInput.value}px ${paddingBottomInput.value}px ${paddingLeftInput.value}px`;
-  activeElement.style.margin = `${marginTopInput.value}px ${marginRightInput.value}px ${marginBottomInput.value}px ${marginLeftInput.value}px`;
-
-  const selectedAlignment = activeElement.dataset.selectedAlignment;
-  if (selectedAlignment) {
-    activeElement.style.textAlign = selectedAlignment;
-  }
-
-  // --- 2. Handle Content Logic ---
-  const type = activeElement.dataset.component;
-
-  if (type === "speaker") {
-    const ps = activeElement.querySelectorAll(".speaker-details p");
-    const pageImg = activeElement.querySelector(".speaker-info img");
-    const speakerDivEditor = document.querySelector(
-      ".edit-container .speaker-div"
-    );
-
-    const speakerNameInput = speakerDivEditor.querySelector(
-      "input:nth-of-type(1)"
-    );
-    const speakerTitleInput = speakerDivEditor.querySelector(
-      "input:nth-of-type(2)"
-    );
-    const speakerOtherInput = speakerDivEditor.querySelector(
-      "input:nth-of-type(3)"
-    );
-    const speakerEditorImg =
-      speakerDivEditor.querySelector(".speaker-image img");
-
-    if (ps[0]) ps[0].textContent = speakerNameInput.value;
-    if (ps[1]) ps[1].textContent = speakerTitleInput.value;
-    if (ps[2]) ps[2].textContent = speakerOtherInput.value;
-    if (pageImg) pageImg.src = speakerEditorImg.src;
-  } else {
-    let target;
-    if (type === "headline") target = activeElement.querySelector("h1");
-    else if (type === "content") target = activeElement.querySelector("p");
-    else if (type === "cta") target = activeElement.querySelector("a");
-    else if (type === "banText") target = activeElement;
-
-    if (target) {
-      target.innerHTML = editorDiv.innerHTML;
-      target.style.color = editorDiv.style.color;
-    }
-  }
-
-  // --- 3. Handle Banner Image ---
-  if (newBannerImageURL && type === "banner") {
-    const bannerImage = activeElement.querySelector("img");
-    if (bannerImage) bannerImage.src = newBannerImageURL;
-  }
-
-  // --- 4. Handle Element Fill Color (Button or Content Block) ---
-  const btnBgInput = document.getElementById("btnBgColor");
-  if (btnBgInput) {
-    const btnBgValue = btnBgInput.value;
-    if (type === "cta") {
-      const buttonLink = activeElement.querySelector("a");
-      if (buttonLink) buttonLink.style.backgroundColor = btnBgValue;
-    } else if (type === "content") {
-      // NOTE: This targets the inner <p> for the background fill
-      // so it doesn't conflict with the main container bgColor
-      const contentPara = activeElement.querySelector("p");
-      if (contentPara) contentPara.style.backgroundColor = btnBgValue;
-    }
-  }
-
-  // 3. Keep the element visually selected after apply
-  activeElement.classList.add("selected");
-
-  const originalText = applyBtn.textContent;
-  applyBtn.textContent = "Applied!";
-  applyBtn.style.backgroundColor = "#28a745"; // Change to green briefly
-
-  setTimeout(() => {
-    applyBtn.textContent = originalText;
-    applyBtn.style.backgroundColor = ""; // Reset to original CSS color
-  }, 1000);
-  autoSave();
-});
-
 const bannerImageInput = document.getElementById("bannerImage");
 
 bannerImageInput.addEventListener("change", function () {
@@ -562,12 +588,23 @@ bannerImageInput.addEventListener("change", function () {
   reader.readAsDataURL(file);
 });
 
-// -----------------------------
 // RESET EDITOR CONTENT
 // -----------------------------
 resetBtn.addEventListener("click", () => {
   if (!activeElement) return;
-  updateEditor(activeElement.dataset.component, activeElement);
+
+  // We simply re-run updateEditor with the currently active element.
+  // This pulls the text, images, and colors from the email back into the sidebar.
+  const type = activeElement.dataset.component;
+  updateEditor(type, activeElement);
+
+  // Visual feedback for the user
+  const originalText = resetBtn.textContent;
+  resetBtn.textContent = "Reset Done!";
+
+  setTimeout(() => {
+    resetBtn.textContent = originalText;
+  }, 1000);
 });
 
 // -----------------------------
@@ -613,7 +650,6 @@ saveModalBtn.addEventListener("click", () => {
     applyBtn.disabled = false;
   }
 
-  syncEditorStylesFromEditor();
   syncModalControlsFromEditor();
   closeModal();
 });
@@ -780,20 +816,14 @@ function getFirstStyledNode(container) {
 }
 
 function rgbToHex(rgb) {
-  // If the color is transparent or not set, return white
-  if (!rgb || rgb === "transparent" || rgb === "rgba(0, 0, 0, 0)") {
-    return "#ffffff";
-  }
-
-  const match = rgb.match(/\d+/g);
-  if (!match) return "#ffffff"; // Fallback to white instead of black
-
+  if (!rgb || rgb === "transparent") return "#ffffff";
+  const vals = rgb.match(/\d+/g);
+  if (!vals) return "#ffffff";
   return (
     "#" +
-    match
-      .slice(0, 3)
-      .map((v) => {
-        const hex = Number(v).toString(16);
+    vals
+      .map((x) => {
+        const hex = parseInt(x).toString(16);
         return hex.length === 1 ? "0" + hex : hex;
       })
       .join("")
@@ -841,6 +871,41 @@ function resetSpeakerEditor() {
 
   speakerDivEditor.style.display = "none";
 }
+
+// Toggle input visibility
+document
+  .querySelector('label[for="addNote"] input')
+  .addEventListener("change", (e) => {
+    const noteInput = document.getElementById("noteFor");
+    noteInput.style.display = e.target.checked ? "block" : "none";
+
+    if (!e.target.checked && selectedComponent) {
+      const note = selectedComponent.querySelector(".component-note");
+      if (note) note.remove();
+    }
+  });
+
+// Update bubble text as user types
+document.getElementById("noteFor").addEventListener("input", (e) => {
+  if (!selectedComponent) return;
+
+  let noteBubble = selectedComponent.querySelector(".component-note");
+
+  if (!noteBubble) {
+    noteBubble = document.createElement("div");
+    noteBubble.className = "component-note";
+    // Important: Ensure the parent has relative positioning to anchor the bubble
+    selectedComponent.style.position = "relative";
+    selectedComponent.appendChild(noteBubble);
+  }
+
+  noteBubble.textContent = e.target.value;
+
+  // Remove if empty
+  if (e.target.value.trim() === "") {
+    noteBubble.remove();
+  }
+});
 // AUTO SAVE
 function autoSave() {
   const content = document.querySelector(".oft-content").innerHTML;
@@ -855,47 +920,139 @@ saveBtn.addEventListener("click", () => {
   // 2. Clone it so we don't mess up the live editor view
   const clone = emailArea.cloneNode(true);
 
-  // 3. Cleanup: Remove editor-only classes and attributes
+  // 3. Process Notes: Convert .component-note elements into HTML Comments
+  const notes = clone.querySelectorAll(".component-note");
+  notes.forEach((note) => {
+    const commentText = note.textContent.trim();
+    // Create an actual HTML comment node
+    const commentNode = document.createComment(
+      ` Component Note: ${commentText} `
+    );
+    // Insert the comment before the note element and then remove the element
+    note.parentNode.insertBefore(commentNode, note);
+    note.remove();
+  });
+
+  // 4. Cleanup: Remove editor-only classes and attributes (Same logic as PDF)
   const allElements = clone.querySelectorAll("*");
   allElements.forEach((el) => {
     el.classList.remove("selected", "selectable");
     el.removeAttribute("data-component");
     el.removeAttribute("data-selected-alignment");
-    // Optionally remove empty style attributes if they were added during editing
+
+    // Clean up empty style attributes if necessary
     if (el.getAttribute("style") === "") el.removeAttribute("style");
   });
 
-  // 4. Create the full HTML structure
+  // 5. Create the full HTML structure
   const finalHtml = `
-<!DOCTYPE html>
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="JA">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body { margin: 0; padding: 0; background-color: #f5f6f8; font-family: "Inter", sans-serif; }
-    table { border-collapse: collapse; }
-    /* Include any necessary base email client resets here */
-  </style>
-</head>
-<body>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Email Template</title>
+    <style type="text/css">
+      @media screen and (max-width: 660px) {
+        *.nomobile { display: none !important; }
+        .mFont { font-size:12pt !important; }
+        .mb { margin-bottom:10px !important; }
+        *.show {
+          display: block !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          overflow: visible !important;
+          width: auto !important;
+          max-height: inherit !important;
+        }
+        table[class=resize_table_to_320], td[class=resize_table_to_320] {
+          width: 100% !important;
+          height: auto;
+          margin: 0 auto;
+        }
+        .drop {
+          width: 100% !important;
+          height: auto !important;
+          display: block !important;
+        }
+        *[class="drop"] {
+          display: block !important;
+          width: 100% !important;
+          padding-left: 0px !important;
+          padding-right: 0px !important;
+        }
+        .img_Rez {
+          width: 100% !important;
+          height: auto !important;
+          display: block !important;
+        }
+        .mhide { display: none; }
+      }
+    </style>
+  </head>
+<body style="margin:0; padding:0;">
   <center>
     ${clone.innerHTML}
   </center>
 </body>
 </html>`;
 
-  // 5. Trigger download
+  // 6. Trigger download
   const blob = new Blob([finalHtml], { type: "text/html" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = "email-template.html";
+  a.download = "email-template.html"; // Note: .oft files are usually .html files renamed or opened in Outlook
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 });
+
+// PDF SAVE
+// saveBtn.addEventListener("click", async () => {
+//   const { jsPDF } = window.jspdf;
+//   const emailArea = document.querySelector(".oft-content");
+
+//   const clone = emailArea.cloneNode(true);
+
+//   // Apply class to force the note under the component in PDF
+//   clone.classList.add("pdf-export-mode");
+
+//   const allElements = clone.querySelectorAll("*");
+//   allElements.forEach((el) => {
+//     el.classList.remove("selected", "selectable");
+//     el.removeAttribute("data-component");
+//   });
+
+//   clone.style.width = "660px";
+//   clone.style.position = "absolute";
+//   clone.style.left = "-9999px";
+//   document.body.appendChild(clone);
+
+//   try {
+//     const canvas = await html2canvas(clone, {
+//       scale: 2,
+//       useCORS: true,
+//       logging: false,
+//     });
+
+//     const imgData = canvas.toDataURL("image/png");
+//     const pdf = new jsPDF({
+//       orientation: "portrait",
+//       unit: "px",
+//       format: [canvas.width, canvas.height],
+//     });
+
+//     pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height);
+//     pdf.save("email-template.pdf");
+//   } catch (error) {
+//     console.error("PDF Generation failed:", error);
+//   } finally {
+//     document.body.removeChild(clone);
+//   }
+// });
+
 function configureEditorPanels(type) {
   // Grab all section elements
   const sections = {
