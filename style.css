@@ -33,8 +33,9 @@ body {
 ------------------------------------ */
 .container {
   display: flex;
-  justify-content: space-between;
-  height: calc(100vh - 70px);
+  justify-content: center; /* Center the page area */
+  min-height: 100vh;
+  position: relative;
 }
 
 /* ------------------------------------
@@ -48,6 +49,12 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  position: fixed; /* FIXED */
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 1002; /* Highest z-index */
 }
 
 .page-title {
@@ -85,7 +92,11 @@ body {
   background: var(--sidebar-bg);
   border-right: 1px solid var(--sidebar-border);
   padding: 20px;
-  position: relative;
+  position: fixed; /* FIXED */
+  left: 0;
+  top: 70px; /* Match Topbar height */
+  height: calc(100vh - 70px);
+  z-index: 1001;
 }
 
 .sidebar-inner {
@@ -176,18 +187,24 @@ body {
    Page Area
 ------------------------------------ */
 .page-area {
-  margin: 40px;
-  overflow-y: auto;
+  margin-top: 70px; /* Push down to clear the topbar */
+  margin-left: 360px; /* Same as sidebar width */
+  margin-right: 400px; /* Same as editor width */
+  padding: 40px;
   display: flex;
   flex-direction: column;
   gap: 20px;
   align-items: center;
+  flex: 1;
+  min-height: 100vh;
+  overflow: visible !important; /* Critical for notes to show */
 }
 .oft-content {
   width: 660px;
-  /* height: 50px; */
-  background-color: #ffffff;
-  border: 1px solid rgb(216, 216, 216);
+  margin: 0 auto;
+  position: relative;
+  overflow: visible !important;
+  background-color: #fff;
 }
 .CTA-div {
   width: 100%;
@@ -206,13 +223,56 @@ body {
 .selectable {
   cursor: pointer;
   position: relative;
+  overflow: visible !important;
 }
 
 .selectable:hover {
   outline: 2px dashed #007aff;
   z-index: 999;
 }
+.component-note {
+  position: absolute;
+  /* This pushes the note 20px to the right of the email border */
+  left: calc(100% + 20px);
+  top: 10px;
+  width: 200px;
+  padding: 10px;
+  background-color: #fff3cd;
+  border: 1px solid #ffeeba;
+  border-radius: 8px;
+  z-index: 9999; /* Ensure it stays on top of everything */
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+  text-align: left;
+  font-size: 12px;
+}
 
+/* The arrow needs to point back to the box */
+.component-note::before {
+  content: "";
+  position: absolute;
+  left: -8px;
+  top: 15px;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-right: 8px solid #ffeeba;
+}
+
+/* 2. PDF EXPORT VIEW: Under the component */
+.pdf-export-mode .component-note {
+  position: static !important;
+  display: block !important;
+  width: 100% !important;
+  margin: 15px 0 !important;
+  background-color: #fffebd !important;
+  border: none !important;
+  border-top: 1px dashed #ccc !important;
+  box-shadow: none !important;
+  padding: 10px !important;
+}
+
+.pdf-export-mode .component-note::before {
+  display: none !important; /* Hide arrow in PDF */
+}
 .selectable.selected {
   outline: 2px solid #007aff;
   background-color: rgba(0, 122, 255, 0.05);
@@ -247,14 +307,16 @@ button:disabled {
    Editor
 ------------------------------------ */
 .editor {
-  padding: 20px;
-  height: 100%;
-  background-color: var(--sidebar-bg);
-  overflow-y: auto;
   width: 400px;
-  overflow-x: hidden;
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  position: relative;
+  background-color: var(--sidebar-bg);
+  border-left: 1px solid var(--sidebar-border); /* Added for visual clarity */
+  padding: 20px;
+  position: fixed; /* FIXED */
+  right: 0;
+  top: 70px; /* Match Topbar height */
+  height: calc(100vh - 70px);
+  overflow-y: auto;
+  z-index: 1001;
 }
 .editor-overlay {
   position: absolute;
@@ -599,4 +661,16 @@ button:disabled {
   font-size: 11px;
   margin-top: 5px;
   display: none;
+}
+#noteFor {
+  padding: 8px;
+  border-radius: 6px;
+  margin-top: 5px;
+  outline: none;
+  border: 1px solid var(--input-border);
+  width: 100%; /* Makes it fill the sidebar width */
+  min-height: 80px; /* Gives enough space for multiple lines */
+  font-family: inherit; /* Ensures it uses "Inter" like the rest of your UI */
+  resize: vertical; /* Allows the user to stretch it down, but not sideways */
+  display: block;
 }
