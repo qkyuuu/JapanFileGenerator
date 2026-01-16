@@ -27,6 +27,7 @@
     <nav class="topbar">
       <div class="page-title">Japan File Generator</div>
       <div class="actions">
+        <button class="btn btn-primary" id="previewBtn">Preview</button>
         <button class="btn btn-primary" id="saveBtn">Save</button>
       </div>
     </nav>
@@ -173,32 +174,36 @@
               </td>
             </tr>
             <tr>
-              <td>
-                <div
-                  class="Banner-div selectable"
-                  data-component="banner"
-                  style="padding: 0px; margin: 0px; background-color: #ffffff"
-                >
-                  <img src="img/BannerPlaceholder.png" alt="" width="100%" />
-                </div>
+              <td
+                class="selectable"
+                data-component="banner"
+                style="padding: 0px; margin: 0px; background-color: #ffffff"
+              >
+                <img src="img/BannerPlaceholder.png" alt="" width="100%" />
               </td>
             </tr>
-            <tr>
-              <td>
-                <div
-                  class="Headline-div selectable"
-                  data-component="headline"
-                  style="padding: 20px; text-align: center"
-                >
-                  <h1 style="margin: 0px; color: #4472c4">Headline Text</h1>
-                </div>
+            <tr class="selectable" data-component="headline">
+              <td
+                align="center"
+                class="mFont"
+                style="
+                  font-size: 24px;
+                  font-family: 'Segoe UI', Verdana, Geneva, Sans-serif;
+                  text-align: center;
+                  padding: 20px;
+                  margin: 0px;
+                  background-color: #ffffff;
+                  color: #4472c4;
+                "
+              >
+                <p style="margin: 0px"><strong>Headline Text</strong></p>
               </td>
             </tr>
             <tr class="selectable" data-component="content">
               <td
                 align="left"
                 style="
-                  font-size: 11pt;
+                  font-size: 12pt;
                   font-family: 'Segoe UI', Verdana, Geneva, Sans-serif;
                   text-align: left;
                   padding: 20px;
@@ -211,13 +216,34 @@
               </td>
             </tr>
             <tr class="selectable" data-component="cta">
-              <td align="center">
-                <table border="0" cellspacing="0" cellpadding="0">
+              <td align="center" bgcolor="#ffffff" style="padding: 20px 0">
+                <table
+                  border="0"
+                  cellspacing="0"
+                  cellpadding="0"
+                  role="presentation"
+                >
                   <tr>
-                    <td bgcolor="#0078d4" style="padding: 10px 35px">
-                      <a href="#" style="color: #ffffff; text-decoration: none"
-                        >Register Now</a
+                    <td
+                      bgcolor="#0078d4"
+                      style="
+                        padding: 10px 35px;
+                        font-family: 'Yu Gothic UI', sans-serif;
+                      "
+                    >
+                      <a
+                        href="#"
+                        target="_blank"
+                        style="
+                          color: #ffffff;
+                          text-decoration: none;
+                          font-size: 12pt;
+                          font-weight: bold;
+                          display: inline-block;
+                        "
                       >
+                        Register Now
+                      </a>
                     </td>
                   </tr>
                 </table>
@@ -235,8 +261,8 @@
                   <tr>
                     <td valign="middle" width="80" style="width: 80px">
                       <img
-                        src="img/SpeakerHeadshot.png"
-                        alt="Speaker Name"
+                        src="https://raw.githubusercontent.com/qkyuuu/JapanFileGenerator/b1e70373c184c193091006ebbeb66758814bc79d/img/SpeakerHeadshot.png"
+                        alt="Speaker Headshot"
                         width="80"
                         style="
                           display: block;
@@ -458,7 +484,7 @@
                     d="M4 2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2m8.38 9.262H7.62L10 5.506zm.532 1.285L14.34 16h1.426L10.804 4H9.196L4.234 16H5.66l1.428-3.453z"
                   ></path>
                 </svg>
-                <input type="color" id="btnBgColor" value="#4472c4" />
+                <input type="color" id="btnBgColor" />
               </label>
             </div>
           </div>
@@ -751,40 +777,40 @@
     </div>
 
     <template id="tpl-banner">
-      <tr>
-        <td>
-          <div
-            class="Banner-div selectable"
-            data-component="banner"
-            style="padding: 0px; margin: 0px; background-color: #ffffff"
-          >
-            <img src="img/Banner.png" alt="" width="100%" />
-          </div>
+      <tr class="selectable" data-component="banner">
+        <td style="padding: 0px; margin: 0px; background-color: #ffffff">
+          <img src="img/Banner.png" alt="" width="100%" />
         </td>
       </tr>
     </template>
 
     <template id="tpl-headline">
-      <tr>
-        <td>
-          <div
-            class="Headline-div selectable"
-            data-component="headline"
-            style="padding: 20px; background-color: #ffffff"
-          >
-            <h1 style="margin: 0px; color: #4472c4">Headline Text</h1>
-          </div>
+      <tr class="selectable" data-component="headline">
+        <td
+          align="center"
+          class="mFont"
+          style="
+            font-size: 24px;
+            font-family: 'Segoe UI', Verdana, Geneva, Sans-serif;
+            text-align: center;
+            padding: 20px;
+            margin: 0px;
+            background-color: #ffffff;
+            color: #4472c4;
+          "
+        >
+          <p style="margin: 0px"><strong>Headline Text</strong></p>
         </td>
       </tr>
     </template>
 
     <template id="tpl-content">
-      <tr>
+      <tr class="selectable" data-component="content">
         <td
           align="left"
           class="mFont"
           style="
-            font-size: 11pt;
+            font-size: 12pt;
             font-family: 'Segoe UI', Verdana, Geneva, Sans-serif;
             text-align: left;
             padding: 20px;
@@ -792,8 +818,6 @@
             background-color: #ffffff;
             color: #000000;
           "
-          class="Content-div selectable"
-          data-component="content"
         >
           <p>Content text</p>
         </td>
@@ -801,38 +825,29 @@
     </template>
 
     <template id="tpl-cta">
-      <tr>
-        <td
-          class="CTA-div selectable"
-          data-component="cta"
-          align="center"
-          bgcolor="#ffffff"
-          style="padding: 20px; margin: 0px"
-        >
-          <table
-            border="0"
-            cellspacing="0"
-            cellpadding="0"
-            role="presentation"
-            align="center"
-          >
+      <tr class="selectable" data-component="cta">
+        <td align="center" bgcolor="#ffffff" style="padding: 20px 0">
+          <table border="0" cellspacing="0" cellpadding="0" role="presentation">
             <tr>
               <td
                 bgcolor="#0078d4"
-                valign="top"
                 style="
-                  font-size: 12pt;
-                  font-family: 'Yu Gothic UI';
                   padding: 10px 35px;
+                  font-family: 'Yu Gothic UI', sans-serif;
                 "
-                align="center"
               >
                 <a
                   href="#"
                   target="_blank"
-                  style="text-decoration: none; color: #ffffff"
+                  style="
+                    color: #ffffff;
+                    text-decoration: none;
+                    font-size: 12pt;
+                    font-weight: bold;
+                    display: inline-block;
+                  "
                 >
-                  <strong>Register Now</strong>
+                  Register Now
                 </a>
               </td>
             </tr>
@@ -854,7 +869,7 @@
             <tr>
               <td valign="middle" width="80" style="width: 80px">
                 <img
-                  src="img/SpeakerHeadshot.png"
+                  src="https://raw.githubusercontent.com/qkyuuu/JapanFileGenerator/b1e70373c184c193091006ebbeb66758814bc79d/img/SpeakerHeadshot.png"
                   alt="Speaker Name"
                   width="80"
                   style="display: block; border: 0; width: 80px; height: auto"
