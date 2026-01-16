@@ -140,20 +140,56 @@ function updateEditor(type, element) {
   const style = window.getComputedStyle(targetForStyle);
 
   let textTarget;
-  if (type === "headline") textTarget = element.querySelector("h1");
+  if (type === "headline") textTarget = element.querySelector("p");
   else if (type === "content") textTarget = element.querySelector("p");
   else if (type === "cta") textTarget = element.querySelector("a");
   else if (type === "banText") textTarget = element.querySelector("p");
 
+  // --- 2. Text, Font Size, and Color Sync ---
   if (textTarget) {
-    const computedTextStyle = window.getComputedStyle(textTarget);
-    textColorInput.value = rgbToHex(computedTextStyle.color);
-    editorDiv.innerHTML = textTarget.innerHTML;
-    if (fontSizeInput)
-      fontSizeInput.value = parseFloat(computedTextStyle.fontSize);
+    const inlineFontSize = textTarget.style.fontSize;
+    const inlineColor = textTarget.style.color;
+
+    if (fontSizeInput) {
+      if (inlineFontSize) {
+        fontSizeInput.value = parseInt(inlineFontSize);
+      } else {
+        const computedSize = parseFloat(
+          window.getComputedStyle(textTarget).fontSize
+        );
+        fontSizeInput.value = Math.round(computedSize * 0.75);
+      }
+    }
+
+    if (textColorInput) {
+      textColorInput.value = rgbToHex(
+        inlineColor || window.getComputedStyle(textTarget).color
+      );
+    }
+
+    if (!textTarget.innerHTML.trim()) {
+      editorDiv.innerHTML = "<p><br></p>";
+    } else {
+      editorDiv.innerHTML = textTarget.innerHTML;
+    }
+  } else {
+    editorDiv.innerHTML = "";
   }
 
-  // --- 2. Background Color Logic ---
+  // --- 3. ALIGNMENT SYNC (STRICTLY FROM TD ATTRIBUTE) ---
+  const alignDropdown = document.getElementById("alignmentSelect");
+  if (alignDropdown) {
+    // We prioritize the 'align' attribute from the template's TD
+    let currentAlign = targetForStyle.getAttribute("align") || "left";
+
+    // Set the dropdown value
+    alignDropdown.value = currentAlign.toLowerCase();
+
+    // Visually align the sidebar text area to match
+    editorDiv.style.textAlign = currentAlign.toLowerCase();
+  }
+
+  // --- 4. Background Color Logic ---
   let currentBg =
     targetForStyle.getAttribute("bgcolor") ||
     targetForStyle.style.backgroundColor;
@@ -166,20 +202,17 @@ function updateEditor(type, element) {
   }
   bgColorInput.value = rgbToHex(currentBg);
 
-  // --- 3. CTA Specific Color ---
+  // --- 5. CTA Specific Color ---
   const btnBgInput = document.getElementById("btnBgColor");
   if (type === "cta") {
     const buttonTd = element.querySelector("table td[bgcolor]");
-    if (buttonTd) {
-      btnBgInput.value = rgbToHex(buttonTd.getAttribute("bgcolor"));
-    }
+    if (buttonTd) btnBgInput.value = rgbToHex(buttonTd.getAttribute("bgcolor"));
   } else {
-    btnBgInput.value = bgColorInput.value;
+    if (btnBgInput) btnBgInput.value = bgColorInput.value;
   }
 
-  // --- 4. Spacing (Fix: Prioritize inline styles to avoid browser computed 20px) ---
+  // --- 6. Spacing logic ---
   const getVal = (el, prop) => parseInt(el.style[prop]) || 0;
-
   document.getElementById("paddingTop").value =
     getVal(targetForStyle, "paddingTop") || parseInt(style.paddingTop) || 0;
   document.getElementById("paddingRight").value =
@@ -191,7 +224,6 @@ function updateEditor(type, element) {
   document.getElementById("paddingLeft").value =
     getVal(targetForStyle, "paddingLeft") || parseInt(style.paddingLeft) || 0;
 
-  // Margins only apply to DIV components; TDs (Content/Speaker) should default to 0
   if (element.tagName === "DIV") {
     document.getElementById("marginTop").value = getVal(element, "marginTop");
     document.getElementById("marginRight").value = getVal(
@@ -204,13 +236,13 @@ function updateEditor(type, element) {
     );
     document.getElementById("marginLeft").value = getVal(element, "marginLeft");
   } else {
-    // Reset fields for Table-based components
     ["marginTop", "marginRight", "marginBottom", "marginLeft"].forEach((id) => {
-      document.getElementById(id).value = 0;
+      const input = document.getElementById(id);
+      if (input) input.value = 0;
     });
   }
 
-  // --- 5. Speaker Logic ---
+  // --- 7. Speaker Logic ---
   const speakerDivEditor = document.querySelector(
     ".edit-container .speaker-div"
   );
@@ -221,31 +253,36 @@ function updateEditor(type, element) {
     const pageImg = element.querySelector("img");
     const editorImg = speakerDivEditor.querySelector(".speaker-image img");
 
-    if (ps[0]) inputs[0].value = ps[0].textContent;
-    if (ps[1]) inputs[1].value = ps[1].textContent;
-    if (ps[2]) inputs[2].value = ps[2].textContent;
+    if (ps[0] && inputs[0]) inputs[0].value = ps[0].textContent;
+    if (ps[1] && inputs[1]) inputs[1].value = ps[1].textContent;
+    if (ps[2] && inputs[2]) inputs[2].value = ps[2].textContent;
     if (pageImg && editorImg) editorImg.src = pageImg.src;
   }
 
-  // --- 6. Banner Logic ---
+  // --- 8. Banner Logic ---
   if (type === "banner") {
     const bannerImg = element.querySelector("img");
+    const bannerImagePreview = document.getElementById("bannerImagePreview");
     if (bannerImg && bannerImagePreview) bannerImagePreview.src = bannerImg.src;
   }
 
-  // --- 7. Sticky Note State ---
+  // --- 9. Sticky Note State ---
   const noteCheckbox = document.querySelector('label[for="addNote"] input');
   const noteInput = document.getElementById("noteFor");
   const existingNote = element.querySelector(".component-note");
 
   if (existingNote) {
     if (noteCheckbox) noteCheckbox.checked = true;
-    noteInput.style.display = "block";
-    noteInput.value = existingNote.textContent;
+    if (noteInput) {
+      noteInput.style.display = "block";
+      noteInput.value = existingNote.textContent;
+    }
   } else {
     if (noteCheckbox) noteCheckbox.checked = false;
-    noteInput.style.display = "none";
-    noteInput.value = "";
+    if (noteInput) {
+      noteInput.style.display = "none";
+      noteInput.value = "";
+    }
   }
 }
 
@@ -259,14 +296,11 @@ applyBtn.addEventListener("click", (e) => {
       ? activeElement.querySelector("td")
       : activeElement;
 
-  // --- 1. Apply Layout & Background Styles ---
+  // --- 1. APPLY LAYOUT & BACKGROUND STYLES ---
   const bgColor = document.getElementById("bgColor").value;
-
-  // Set bgcolor attribute for email clients and style for preview
   targetForStyle.setAttribute("bgcolor", bgColor);
   targetForStyle.style.backgroundColor = bgColor;
 
-  // Apply Padding to the TD or DIV
   targetForStyle.style.paddingTop =
     document.getElementById("paddingTop").value + "px";
   targetForStyle.style.paddingRight =
@@ -276,7 +310,6 @@ applyBtn.addEventListener("click", (e) => {
   targetForStyle.style.paddingLeft =
     document.getElementById("paddingLeft").value + "px";
 
-  // Apply Margin only if it's a DIV (Rows don't support margin)
   if (activeElement.tagName === "DIV") {
     activeElement.style.marginTop =
       document.getElementById("marginTop").value + "px";
@@ -284,57 +317,102 @@ applyBtn.addEventListener("click", (e) => {
       document.getElementById("marginBottom").value + "px";
   }
 
-  // --- 2. Handle Content Logic ---
+  // --- 2. ALIGNMENT LOGIC (UPDATING TD ATTRIBUTE) ---
+  const selectedAlign = document.getElementById("alignmentSelect").value;
+
+  // Set the 'align' attribute on the TD (Main request)
+  targetForStyle.setAttribute("align", selectedAlign);
+  // Also set CSS for the browser preview
+  targetForStyle.style.textAlign = selectedAlign;
+
+  // Sync the sidebar editor visually
+  editorDiv.style.textAlign = selectedAlign;
+
+  if (type === "cta") {
+    // Nested tables in email need the align attribute to move physically
+    const innerTable = activeElement.querySelector("table");
+    if (innerTable) {
+      innerTable.setAttribute("align", selectedAlign);
+      if (selectedAlign === "center") innerTable.style.margin = "0 auto";
+      else if (selectedAlign === "right")
+        innerTable.style.margin = "0 0 0 auto";
+      else innerTable.style.margin = "0 auto 0 0";
+    }
+  } else if (type === "speaker") {
+    // For speaker, we apply to the 3rd TD (the text container)
+    const speakerTextTd = activeElement.querySelectorAll("td")[2];
+    if (speakerTextTd) {
+      speakerTextTd.setAttribute("align", selectedAlign);
+      speakerTextTd.style.textAlign = selectedAlign;
+    }
+  }
+
+  // --- 3. HANDLE CONTENT LOGIC ---
   if (type === "speaker") {
     const speakerDivEditor = document.querySelector(
       ".edit-container .speaker-div"
     );
     const ps = activeElement.querySelectorAll("p");
-    const pageImg = activeElement.querySelector("img");
     const inputs = speakerDivEditor.querySelectorAll("input");
     const speakerEditorImg =
       speakerDivEditor.querySelector(".speaker-image img");
-
+    const pageImg = activeElement.querySelector("img");
     if (ps[0]) ps[0].textContent = inputs[0].value;
     if (ps[1]) ps[1].textContent = inputs[1].value;
     if (ps[2]) ps[2].textContent = inputs[2].value;
     if (pageImg) pageImg.src = speakerEditorImg.src;
+
+    // Force speaker text alignment
+    ps.forEach((p) => (p.style.textAlign = selectedAlign));
   } else {
     let target;
-    if (type === "headline") target = activeElement.querySelector("h1");
+    if (type === "headline") target = activeElement.querySelector("p");
     else if (type === "content") target = activeElement.querySelector("p");
     else if (type === "cta") target = activeElement.querySelector("a");
     else if (type === "banText") target = activeElement.querySelector("p");
 
     if (target) {
       target.innerHTML = editorDiv.innerHTML;
-      target.style.color = textColorInput.value;
-      if (fontSizeInput) target.style.fontSize = fontSizeInput.value + "pt";
+
+      // Ensure the text tag inside matches the alignment
+      target.style.textAlign = selectedAlign;
+
+      if (!editorDiv.innerHTML.includes('style="color')) {
+        target.style.color = textColorInput.value;
+      } else {
+        target.style.color = "";
+      }
+
+      if (fontSizeInput) {
+        target.style.fontSize = fontSizeInput.value + "pt";
+      }
     }
   }
 
-  // --- 3. Handle Banner Image ---
+  // --- 4. HANDLE BANNER IMAGE ---
   if (newBannerImageURL && type === "banner") {
     const bannerImage = activeElement.querySelector("img");
     if (bannerImage) bannerImage.src = newBannerImageURL;
   }
 
-  // --- 4. Handle CTA Button Color ---
+  // --- 5. HANDLE CTA BUTTON SPECIFICS ---
   if (type === "cta") {
-    const buttonTd = activeElement.querySelector("table td[bgcolor]");
+    const buttonTd = activeElement.querySelector("table td a")?.closest("td");
+    const buttonLink = activeElement.querySelector("a");
     if (buttonTd) {
-      buttonTd.setAttribute(
-        "bgcolor",
-        document.getElementById("btnBgColor").value
-      );
+      const newBtnBg = document.getElementById("btnBgColor").value;
+      buttonTd.setAttribute("bgcolor", newBtnBg);
+      buttonTd.style.backgroundColor = newBtnBg;
+    }
+    if (buttonLink) {
+      buttonLink.style.color = textColorInput.value;
     }
   }
 
-  // --- 5. Handle Note Logic ---
+  // --- 6. HANDLE NOTE LOGIC ---
   const noteCheckbox = document.querySelector('label[for="addNote"] input');
   const noteInput = document.getElementById("noteFor");
   let noteBubble = activeElement.querySelector(".component-note");
-
   if (noteCheckbox && noteCheckbox.checked && noteInput.value.trim() !== "") {
     if (!noteBubble) {
       noteBubble = document.createElement("div");
@@ -347,7 +425,7 @@ applyBtn.addEventListener("click", (e) => {
     noteBubble.remove();
   }
 
-  // Visual Feedback
+  // --- 7. VISUAL FEEDBACK & SAVING ---
   const originalText = applyBtn.textContent;
   applyBtn.textContent = "Applied!";
   applyBtn.style.backgroundColor = "#28a745";
@@ -661,6 +739,28 @@ document.querySelectorAll(".modal-toolbar button[data-cmd]").forEach((btn) => {
   btn.addEventListener("click", () => {
     const cmd = btn.getAttribute("data-cmd");
     modalEditor.focus();
+
+    if (cmd === "underline") {
+      const selection = window.getSelection();
+      if (selection.rangeCount > 0) {
+        let parent = selection.anchorNode.parentElement;
+
+        // Check if we are inside a link (<a>)
+        const anchor = parent.closest("a");
+
+        if (anchor) {
+          // Toggle underline on the link manually
+          if (anchor.style.textDecoration === "underline") {
+            anchor.style.textDecoration = "none";
+          } else {
+            anchor.style.textDecoration = "underline";
+          }
+          return; // Skip the standard execCommand
+        }
+      }
+    }
+
+    // Default behavior for Bold, Italic, and normal text Underline
     document.execCommand(cmd, false, null);
   });
 });
@@ -913,99 +1013,79 @@ function autoSave() {
 }
 const saveBtn = document.getElementById("saveBtn");
 
-saveBtn.addEventListener("click", () => {
-  // 1. Get the email content container
+// Function to generate the clean HTML (Shared by Save and Preview)
+function getCleanEmailHTML() {
   const emailArea = document.querySelector(".oft-content");
-
-  // 2. Clone it so we don't mess up the live editor view
   const clone = emailArea.cloneNode(true);
 
-  // 3. Process Notes: Convert .component-note elements into HTML Comments
+  // Process Notes into Comments
   const notes = clone.querySelectorAll(".component-note");
   notes.forEach((note) => {
-    const commentText = note.textContent.trim();
-    // Create an actual HTML comment node
     const commentNode = document.createComment(
-      ` Component Note: ${commentText} `
+      ` Component Note: ${note.textContent.trim()} `
     );
-    // Insert the comment before the note element and then remove the element
     note.parentNode.insertBefore(commentNode, note);
     note.remove();
   });
 
-  // 4. Cleanup: Remove editor-only classes and attributes (Same logic as PDF)
+  // Cleanup Editor attributes
   const allElements = clone.querySelectorAll("*");
   allElements.forEach((el) => {
     el.classList.remove("selected", "selectable");
     el.removeAttribute("data-component");
     el.removeAttribute("data-selected-alignment");
-
-    // Clean up empty style attributes if necessary
     if (el.getAttribute("style") === "") el.removeAttribute("style");
   });
 
-  // 5. Create the full HTML structure
-  const finalHtml = `
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="JA">
+  // Return the full template string
+  return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Email Template</title>
-    <style type="text/css">
-      @media screen and (max-width: 660px) {
-        *.nomobile { display: none !important; }
-        .mFont { font-size:12pt !important; }
-        .mb { margin-bottom:10px !important; }
-        *.show {
-          display: block !important;
-          margin: 0 !important;
-          padding: 0 !important;
-          overflow: visible !important;
-          width: auto !important;
-          max-height: inherit !important;
-        }
-        table[class=resize_table_to_320], td[class=resize_table_to_320] {
-          width: 100% !important;
-          height: auto;
-          margin: 0 auto;
-        }
-        .drop {
-          width: 100% !important;
-          height: auto !important;
-          display: block !important;
-        }
-        *[class="drop"] {
-          display: block !important;
-          width: 100% !important;
-          padding-left: 0px !important;
-          padding-right: 0px !important;
-        }
-        .img_Rez {
-          width: 100% !important;
-          height: auto !important;
-          display: block !important;
-        }
-        .mhide { display: none; }
-      }
-    </style>
-  </head>
-<body style="margin:0; padding:0;">
-  <center>
-    ${clone.innerHTML}
-  </center>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+<title>Email Preview</title>
+<style type="text/css">
+  @media screen and (max-width: 580px) {
+    .resize_table_to_320 { width: 100% !important; height: auto; }
+    .innertbl { width: 93% !important; height: auto; margin: 0 auto; }
+    .mFont { font-size: 12pt !important; }
+    .img_Rez { width: 100% !important; height: auto !important; display: block !important; }
+    .drop { width: 100% !important; display: block !important; }
+  }
+</style>
+</head>
+<body style="margin:0; padding:0;" bgcolor="#e3e3e3">
+  <table width="100%" border="0" cellspacing="0" cellpadding="0" role="presentation" bgcolor="#e3e3e3">
+    <tr>
+      <td align="center" valign="top">
+        <table width="640" border="0" cellspacing="0" cellpadding="0" role="presentation" bgcolor="#FFFFFF" class="resize_table_to_320" style="margin: 0 auto; table-layout: fixed;">
+          <tbody><tr><td align="center" valign="top">${clone.innerHTML}</td></tr></tbody>
+        </table>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>`;
+}
 
-  // 6. Trigger download
+// PREVIEW BUTTON EVENT
+document.getElementById("previewBtn").addEventListener("click", () => {
+  const html = getCleanEmailHTML();
+  const previewWin = window.open("", "_blank");
+  previewWin.document.open();
+  previewWin.document.write(html);
+  previewWin.document.close();
+});
+
+// Update your SAVE BUTTON to use the same function
+saveBtn.addEventListener("click", () => {
+  const finalHtml = getCleanEmailHTML();
   const blob = new Blob([finalHtml], { type: "text/html" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = "email-template.html"; // Note: .oft files are usually .html files renamed or opened in Outlook
-  document.body.appendChild(a);
+  a.download = "email-template.html";
   a.click();
-  document.body.removeChild(a);
   URL.revokeObjectURL(url);
 });
 
@@ -1117,43 +1197,57 @@ function configureEditorPanels(type) {
 const addLinkBtn = document.getElementById("addLinkBtn");
 
 addLinkBtn.addEventListener("click", () => {
-  // 1. Ensure the modal editor is focused and selection is restored
   modalEditor.focus();
-  if (savedModalSelection) {
-    restoreModalSelection();
-  }
+  if (savedModalSelection) restoreModalSelection();
 
-  // 2. Check if the user has actually highlighted text
   const selection = window.getSelection();
   if (selection.toString().length === 0) {
     alert("Please highlight the text you want to turn into a link first.");
     return;
   }
 
-  // 3. Ask for the URL
   let url = prompt("Enter the URL:", "https://");
 
   if (url && url.trim() !== "" && url !== "https://") {
-    if (!/^https?:\/\//i.test(url)) {
-      url = "https://" + url;
-    }
+    if (!/^https?:\/\//i.test(url)) url = "https://" + url;
 
+    // Create the link using standard command
     document.execCommand("createLink", false, url);
 
-    const selectionParent = selection.anchorNode.parentElement;
-    if (selectionParent && selectionParent.tagName === "A") {
-      selectionParent.setAttribute("target", "_blank");
-      selectionParent.style.color = "#0066cc";
-      selectionParent.style.textDecoration = "underline";
-    } else {
-      // Fallback: If anchorNode isn't direct, fix all links to be safe
-      const links = modalEditor.getElementsByTagName("a");
-      for (let link of links) {
-        link.setAttribute("target", "_blank");
-      }
+    // Only add target="_blank", do not touch color or text-decoration
+    const links = modalEditor.getElementsByTagName("a");
+    for (let link of links) {
+      link.setAttribute("target", "_blank");
+      link.setAttribute("style", "color:#0078D4");
     }
 
-    // 6. Save the new state
     saveModalSelection();
   }
 });
+// FORCING <BR> INSTEAD OF <DIV> OR <P> ON ENTER
+function handleEditorEnter(e) {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    document.execCommand("insertLineBreak");
+  }
+}
+
+// FORCING PLAIN TEXT ONLY ON PASTE
+function handlePaste(e) {
+  e.preventDefault();
+  // 1. Get ONLY the raw characters (Strips all those nested spans)
+  const text = (e.originalEvent || e).clipboardData.getData("text/plain");
+
+  // 2. Convert newlines to <br> so it stays in one block
+  const cleanHtml = text.replace(/\r?\n/g, "<br>");
+
+  // 3. Insert the clean text
+  document.execCommand("insertHTML", false, cleanHtml);
+}
+
+// 3. Apply the listeners to both editors
+editorDiv.addEventListener("keydown", handleEditorEnter);
+editorDiv.addEventListener("paste", handlePaste);
+
+modalEditor.addEventListener("keydown", handleEditorEnter);
+modalEditor.addEventListener("paste", handlePaste);
