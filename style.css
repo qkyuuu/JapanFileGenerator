@@ -27,7 +27,16 @@ body {
   background: var(--bg);
   color: var(--fg);
 }
-
+p {
+  margin: 0;
+  padding: 0;
+  margin-bottom: 0;
+}
+.editor-textarea p,
+.modal-editor p {
+  margin: 0 0 10px 0; /* Adjust to match your email template's spacing */
+  padding: 0;
+}
 /* ------------------------------------
    Layout
 ------------------------------------ */
@@ -107,7 +116,6 @@ body {
 /* Sidebar blocks */
 .sidebar-block {
   background: var(--block-bg);
-  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 18px;
   margin-bottom: 20px;
@@ -146,7 +154,9 @@ body {
   padding: 10px;
   text-align: center;
 }
-
+#descriptionEditor {
+  text-align: left;
+}
 .component.search {
   text-align: left;
 }
