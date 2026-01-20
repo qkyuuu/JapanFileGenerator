@@ -128,6 +128,13 @@ function resetEditorState() {
 }
 
 function updateEditor(type, element) {
+  if (
+    element.closest(".editor-sidebar") ||
+    element.closest(".modal") ||
+    element.classList.contains("color-picker")
+  ) {
+    return;
+  }
   configureEditorPanels(type);
   activeElement = element;
 
@@ -155,7 +162,7 @@ function updateEditor(type, element) {
         fontSizeInput.value = parseInt(inlineFontSize);
       } else {
         const computedSize = parseFloat(
-          window.getComputedStyle(textTarget).fontSize
+          window.getComputedStyle(textTarget).fontSize,
         );
         fontSizeInput.value = Math.round(computedSize * 0.75);
       }
@@ -163,7 +170,7 @@ function updateEditor(type, element) {
 
     if (textColorInput) {
       textColorInput.value = rgbToHex(
-        inlineColor || window.getComputedStyle(textTarget).color
+        inlineColor || window.getComputedStyle(textTarget).color,
       );
     }
 
@@ -181,7 +188,6 @@ function updateEditor(type, element) {
   if (alignDropdown) {
     // We prioritize the 'align' attribute from the template's TD
     let currentAlign = targetForStyle.getAttribute("align") || "left";
-
     // Set the dropdown value
     alignDropdown.value = currentAlign.toLowerCase();
 
@@ -228,11 +234,11 @@ function updateEditor(type, element) {
     document.getElementById("marginTop").value = getVal(element, "marginTop");
     document.getElementById("marginRight").value = getVal(
       element,
-      "marginRight"
+      "marginRight",
     );
     document.getElementById("marginBottom").value = getVal(
       element,
-      "marginBottom"
+      "marginBottom",
     );
     document.getElementById("marginLeft").value = getVal(element, "marginLeft");
   } else {
@@ -244,26 +250,32 @@ function updateEditor(type, element) {
 
   // --- 7. Speaker Logic ---
   const speakerDivEditor = document.querySelector(
-    ".edit-container .speaker-div"
+    ".edit-container .speaker-div",
   );
   if (type === "speaker" && speakerDivEditor) {
     speakerDivEditor.style.display = "flex";
+
     const inputs = speakerDivEditor.querySelectorAll("input");
     const ps = element.querySelectorAll("p");
     const pageImg = element.querySelector("img");
     const editorImg = speakerDivEditor.querySelector(".speaker-image img");
 
-    if (ps[0] && inputs[0]) inputs[0].value = ps[0].textContent;
-    if (ps[1] && inputs[1]) inputs[1].value = ps[1].textContent;
-    if (ps[2] && inputs[2]) inputs[2].value = ps[2].textContent;
+    // Use .trim() to kill the extra spaces coming from the HTML indentation
+    if (ps[0] && inputs[0]) inputs[0].value = ps[0].textContent.trim();
+    if (ps[1] && inputs[1]) inputs[1].value = ps[1].textContent.trim();
+    if (ps[2] && inputs[2]) inputs[2].value = ps[2].textContent.trim();
+
     if (pageImg && editorImg) editorImg.src = pageImg.src;
+
+    // This ensures the editor box doesn't look jagged
+    editorDiv.style.textAlign = "left";
   }
 
   // --- 8. Banner Logic ---
   if (type === "banner") {
     const bannerImg = element.querySelector("img");
     const bannerImagePreview = document.getElementById("bannerImagePreview");
-    if (bannerImg && bannerImagePreview) bannerImagePreview.src = bannerImg.src;
+    bannerImagePreview.src = newBannerImageURL || bannerImg.src;
   }
 
   // --- 9. Sticky Note State ---
@@ -350,7 +362,7 @@ applyBtn.addEventListener("click", (e) => {
   // --- 3. HANDLE CONTENT LOGIC ---
   if (type === "speaker") {
     const speakerDivEditor = document.querySelector(
-      ".edit-container .speaker-div"
+      ".edit-container .speaker-div",
     );
     const ps = activeElement.querySelectorAll("p");
     const inputs = speakerDivEditor.querySelectorAll("input");
@@ -462,7 +474,7 @@ document.addEventListener("click", (e) => {
     activeElement.classList.remove("selected");
     activeElement = null;
     const allSections = document.querySelectorAll(
-      ".editor-section, #section-actions"
+      ".editor-section, #section-actions",
     );
     allSections.forEach((s) => (s.style.display = "none"));
     // Disable editor and controls
@@ -546,25 +558,26 @@ moveDownBtn.addEventListener("click", () => {
 // -----------------------------
 // TEXT COLOR & SIZE HANDLERS (MAIN EDITOR)
 // -----------------------------
-textColorInput.addEventListener("input", () => {
+textColorInput.addEventListener("change", () => {
   const sel = window.getSelection();
   const color = textColorInput.value;
 
-  // 1. If there is a text selection inside the editorDiv
+  // Force the browser to use <span> instead of <font>
+  document.execCommand("styleWithCSS", false, true);
+
   if (
     sel.rangeCount > 0 &&
     !sel.isCollapsed &&
     isSelectionInside(sel, editorDiv)
   ) {
     restoreSelection();
+    // Clean existing formatting in selection before applying new color
+    document.execCommand("removeFormat", false, "foreColor");
     document.execCommand("foreColor", false, color);
     saveSelection();
-  }
-  // 2. If no selection (or just a cursor), apply color to the whole block
-  else {
+  } else {
+    // Apply to whole block
     editorDiv.style.color = color;
-    // Optional: Force children to inherit or clear their specific colors
-    // This ensures that the global color change is visible immediately
     const styledSpans = editorDiv.querySelectorAll('span[style*="color"]');
     styledSpans.forEach((span) => (span.style.color = ""));
   }
@@ -670,9 +683,6 @@ bannerImageInput.addEventListener("change", function () {
 // -----------------------------
 resetBtn.addEventListener("click", () => {
   if (!activeElement) return;
-
-  // We simply re-run updateEditor with the currently active element.
-  // This pulls the text, images, and colors from the email back into the sidebar.
   const type = activeElement.dataset.component;
   updateEditor(type, activeElement);
 
@@ -830,21 +840,15 @@ modalColorPicker.addEventListener("input", (e) => {
   if (!color) return;
 
   restoreModalSelection();
+  document.execCommand("styleWithCSS", false, true);
+
   const sel = window.getSelection();
-  if (!sel.rangeCount) return;
+  if (!sel.rangeCount || sel.isCollapsed) return;
 
-  const range = sel.getRangeAt(0);
-  if (range.collapsed) return;
-
-  const span = document.createElement("span");
-  span.style.color = color;
-  span.appendChild(range.extractContents());
-  range.insertNode(span);
-
-  sel.removeAllRanges();
-  const newRange = document.createRange();
-  newRange.selectNodeContents(span);
-  sel.addRange(newRange);
+  // Instead of creating a span manually, use the browser command
+  // but clean the formatting first to prevent "Russian Doll" spans
+  document.execCommand("removeFormat", false, "foreColor");
+  document.execCommand("foreColor", false, color);
 
   saveModalSelection();
   syncModalControlsFromEditor();
@@ -903,7 +907,7 @@ function getFirstStyledNode(container) {
   const walker = document.createTreeWalker(
     container,
     NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
-    null
+    null,
   );
 
   let node = walker.nextNode();
@@ -939,7 +943,7 @@ editorDiv.addEventListener("keyup", syncEditorStylesFromEditor);
 // -----------------------------
 const speakerImageInput = document.getElementById("speakerImage");
 const speakerDivEditorPreview = document.querySelector(
-  ".edit-container .speaker-div"
+  ".edit-container .speaker-div",
 );
 
 // Inputs are already handled via temp editor preview above
@@ -958,7 +962,7 @@ speakerImageInput.addEventListener("change", (e) => {
 });
 function resetSpeakerEditor() {
   const speakerDivEditor = document.querySelector(
-    ".edit-container .speaker-div"
+    ".edit-container .speaker-div",
   );
 
   if (!speakerDivEditor) return;
@@ -1022,7 +1026,7 @@ function getCleanEmailHTML() {
   const notes = clone.querySelectorAll(".component-note");
   notes.forEach((note) => {
     const commentNode = document.createComment(
-      ` Component Note: ${note.textContent.trim()} `
+      ` Component Note: ${note.textContent.trim()} `,
     );
     note.parentNode.insertBefore(commentNode, note);
     note.remove();
