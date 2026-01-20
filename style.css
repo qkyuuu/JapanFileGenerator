@@ -7,7 +7,11 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
 }
 
 /* ------------------------------------
@@ -537,6 +541,7 @@ button:disabled {
   padding: 5px 10px;
   border-radius: 5px;
   border: 1px solid #cccccc;
+  text-align: left;
 }
 .banner-div {
   display: flex;
