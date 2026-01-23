@@ -58,14 +58,14 @@
             </div>
             <div class="sb-row">
               <label for="">Header</label>
-              <div class="component">
+              <div class="component add-component" data-template="tpl-header">
                 <img src="img/Header.png" alt="" />
               </div>
             </div>
 
             <div class="sb-row">
               <label for="">Banner Text</label>
-              <div class="component">
+              <div class="component add-component" data-template="tpl-banText">
                 <img src="img/BanText.png" alt="" />
               </div>
             </div>
@@ -107,7 +107,7 @@
 
             <div class="sb-row">
               <label for="">Divider</label>
-              <div class="component">
+              <div class="component add-component" data-template="tpl-divider">
                 <img src="" alt="" />
               </div>
             </div>
@@ -157,20 +157,20 @@
               </td>
             </tr>
             <tr>
-              <td>
-                <div
-                  class="BanText-div selectable"
-                  data-component="banText"
-                  style="
-                    padding: 20px;
-                    color: #000000;
-                    background-color: #919191;
-                    font-size: 32px;
-                    font-weight: 700;
-                  "
-                >
-                  <p>Banner Text</p>
-                </div>
+              <td
+                class="BanText-div selectable"
+                data-component="banText"
+                style="
+                  padding: 20px;
+                  color: #000000;
+                  background-color: #919191;
+                  font-size: 32px;
+                  font-weight: 700;
+                  font-family:
+                    &quot;Segoe UI&quot;, Geneva, Verdana, sans-serif;
+                "
+              >
+                <p>Banner Text</p>
               </td>
             </tr>
             <tr>
@@ -199,6 +199,9 @@
               >
                 <p style="margin: 0px"><strong>Headline Text</strong></p>
               </td>
+            </tr>
+            <tr>
+              <td style="background-color: #0078d4; height: 3px"></td>
             </tr>
             <tr class="selectable" data-component="content">
               <td
@@ -786,6 +789,64 @@
         <td style="padding: 0px; margin: 0px; background-color: #ffffff">
           <img src="img/Banner.png" alt="" width="100%" />
         </td>
+      </tr>
+    </template>
+
+    <template id="tpl-header">
+      <tr class="selectable" data-component="headline">
+        <td valign="top" align="center">
+          <table
+            width="93%"
+            border="0"
+            cellspacing="0"
+            cellpadding="0"
+            role="presentation"
+            bgcolor="#FFFFFF"
+          >
+            <tbody>
+              <tr>
+                <td>&nbsp;</td>
+              </tr>
+              <tr>
+                <td valign="top" align="left">
+                  <img
+                    src="https://cdn-dynmedia-1.microsoft.com/is/image/microsoftcorp/ST1231968_LOGO"
+                    width="90"
+                    alt="Microsoft Logo."
+                    style="border: none; border-width: 0"
+                    border="0"
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td>&nbsp;</td>
+              </tr>
+            </tbody>
+          </table>
+        </td>
+      </tr>
+    </template>
+
+    <template id="tpl-banText">
+      <tr class="selectable" data-component="headline">
+        <td
+          style="
+            padding: 20px;
+            color: #000000;
+            background-color: #919191;
+            font-size: 32px;
+            font-weight: 700;
+            font-family: &quot;Segoe UI&quot;, Geneva, Verdana, sans-serif;
+          "
+        >
+          <p>Banner Text</p>
+        </td>
+      </tr>
+    </template>
+
+    <template id="tpl-divider">
+      <tr>
+        <td style="background-color: #0078d4; height: 3px"></td>
       </tr>
     </template>
 
